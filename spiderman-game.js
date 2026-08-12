@@ -99,6 +99,9 @@ function SpidermanGame(opts) {
 	this.score = this.score || 0;
 	this.comboCount = 0;
 	this.lastKillTime = 0;
+	this.audioCtx = null;
+	this.currentTrackIndex = 0;
+	this.currentMusicAudio = null;
 	
 	try {
 		this.highScore = parseInt(localStorage.getItem("spidee_highscore") || "0", 10);
@@ -197,7 +200,16 @@ SpidermanGame.prototype.load = function() {
 	this.spiderman = new SpiderMan(this);
 	this.scene.spiderman = this.spiderman;
 
+	var handleUserInteraction = function() {
+		self.getAudioContext();
+		if (!self.muted && !self.currentMusicAudio) {
+			self.playMusic();
+		}
+	};
+	document.addEventListener("click", handleUserInteraction);
+
 	document.addEventListener("keydown", function(e) {
+		handleUserInteraction();
 		var keyCode = e.keyCode || e.which;
 
 		if (keyCode == 13 || keyCode == KEY.ENTER) {
@@ -278,6 +290,281 @@ SpidermanGame.prototype.addFloatingText = function(x, y, text, color, fontSize) 
 	this.scene.floatingTexts.push(new FloatingText(this, x, y, text, color, fontSize));
 };
 
+SpidermanGame.prototype.getAudioContext = function() {
+	if (!this.audioCtx) {
+		var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+		if (AudioContextClass) {
+			this.audioCtx = new AudioContextClass();
+		}
+	}
+	if (this.audioCtx && this.audioCtx.state === "suspended") {
+		this.audioCtx.resume();
+	}
+	return this.audioCtx;
+};
+
+SpidermanGame.prototype.playMusic = function() {
+	if (this.muted) return;
+	if (this.currentMusicAudio) {
+		this.currentMusicAudio.play().catch(function() {});
+		return;
+	}
+	var self = this;
+	var trackName = AUDIO_LOOP[this.currentTrackIndex || 0];
+	var audio = AUDIO_RESOURCES[trackName];
+	if (audio) {
+		audio.volume = 0.4;
+		audio.loop = false;
+		audio.onended = function() {
+			self.currentTrackIndex = ((self.currentTrackIndex || 0) + 1) % AUDIO_LOOP.length;
+			self.currentMusicAudio = null;
+			self.playMusic();
+		};
+		this.currentMusicAudio = audio;
+		audio.play().catch(function() {});
+	}
+};
+
+SpidermanGame.prototype.mute = function() {
+	this.muted = true;
+	if (this.currentMusicAudio) {
+		this.currentMusicAudio.pause();
+	}
+};
+
+SpidermanGame.prototype.unmute = function() {
+	this.muted = false;
+	this.playMusic();
+};
+
+SpidermanGame.prototype.playSound = function(type) {
+	if (!this.soundEffects) return;
+	var ctx = this.getAudioContext();
+
+	if (type === "WEB_SHOOT") {
+		try {
+			var audioObj = AUDIO_RESOURCES["SHOOT"];
+			if (audioObj) {
+				var clone = audioObj.cloneNode();
+				clone.volume = 0.6;
+				clone.play().catch(function() {});
+			}
+		} catch (e) {}
+
+		if (ctx) {
+			try {
+				var osc = ctx.createOscillator();
+				var gain = ctx.createGain();
+				osc.type = "sine";
+				var now = ctx.currentTime;
+				osc.frequency.setValueAtTime(900, now);
+				osc.frequency.exponentialRampToValueAtTime(150, now + 0.12);
+				gain.gain.setValueAtTime(0.35, now);
+				gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+				osc.connect(gain);
+				gain.connect(ctx.destination);
+				osc.start(now);
+				osc.stop(now + 0.12);
+			} catch (e) {}
+		}
+	} else if (type === "ENEMY_SHOOT") {
+		if (!ctx) return;
+		try {
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sawtooth";
+			var now = ctx.currentTime;
+			osc.frequency.setValueAtTime(450, now);
+			osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+			gain.gain.setValueAtTime(0.2, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.1);
+		} catch (e) {}
+	} else if (type === "HIT_ENEMY") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "triangle";
+			osc.frequency.setValueAtTime(220, now);
+			osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+			gain.gain.setValueAtTime(0.4, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.15);
+
+			var bufferSize = ctx.sampleRate * 0.08;
+			var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+			var data = buffer.getChannelData(0);
+			for (var i = 0; i < bufferSize; i++) {
+				data[i] = Math.random() * 2 - 1;
+			}
+			var noise = ctx.createBufferSource();
+			noise.buffer = buffer;
+			var noiseGain = ctx.createGain();
+			noiseGain.gain.setValueAtTime(0.25, now);
+			noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+			noise.connect(noiseGain);
+			noiseGain.connect(ctx.destination);
+			noise.start(now);
+		} catch (e) {}
+	} else if (type === "HIT_PLAYER") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sawtooth";
+			osc.frequency.setValueAtTime(150, now);
+			osc.frequency.linearRampToValueAtTime(60, now + 0.2);
+			gain.gain.setValueAtTime(0.4, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.2);
+		} catch (e) {}
+	} else if (type === "COLLECT_COIN") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sine";
+			osc.frequency.setValueAtTime(987.77, now);
+			osc.frequency.setValueAtTime(1318.51, now + 0.08);
+			gain.gain.setValueAtTime(0.35, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.25);
+		} catch (e) {}
+	} else if (type === "COLLECT_SHIELD") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sine";
+			osc.frequency.setValueAtTime(300, now);
+			osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
+			gain.gain.setValueAtTime(0.35, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.3);
+		} catch (e) {}
+	} else if (type === "COLLECT_PIZZA") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var notes = [523.25, 659.25, 783.99];
+			notes.forEach(function(freq, index) {
+				var osc = ctx.createOscillator();
+				var gain = ctx.createGain();
+				osc.type = "sine";
+				osc.frequency.setValueAtTime(freq, now + index * 0.07);
+				gain.gain.setValueAtTime(0.3, now + index * 0.07);
+				gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.07 + 0.12);
+				osc.connect(gain);
+				gain.connect(ctx.destination);
+				osc.start(now + index * 0.07);
+				osc.stop(now + index * 0.07 + 0.12);
+			});
+		} catch (e) {}
+	} else if (type === "ENEMY_DEFEAT") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sawtooth";
+			osc.frequency.setValueAtTime(300, now);
+			osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+			gain.gain.setValueAtTime(0.3, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.2);
+		} catch (e) {}
+	} else if (type === "RAGE") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sawtooth";
+			osc.frequency.setValueAtTime(150, now);
+			osc.frequency.exponentialRampToValueAtTime(600, now + 0.4);
+			gain.gain.setValueAtTime(0.4, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.45);
+		} catch (e) {}
+	} else if (type === "JUMP") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sine";
+			osc.frequency.setValueAtTime(250, now);
+			osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+			gain.gain.setValueAtTime(0.2, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.1);
+		} catch (e) {}
+	} else if (type === "SWING") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var osc = ctx.createOscillator();
+			var gain = ctx.createGain();
+			osc.type = "sine";
+			osc.frequency.setValueAtTime(400, now);
+			osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+			gain.gain.setValueAtTime(0.25, now);
+			gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now);
+			osc.stop(now + 0.15);
+		} catch (e) {}
+	} else if (type === "GAME_OVER") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var notes = [400, 350, 300, 220];
+			notes.forEach(function(freq, index) {
+				var osc = ctx.createOscillator();
+				var gain = ctx.createGain();
+				osc.type = "sawtooth";
+				osc.frequency.setValueAtTime(freq, now + index * 0.12);
+				gain.gain.setValueAtTime(0.3, now + index * 0.12);
+				gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.12 + 0.18);
+				osc.connect(gain);
+				gain.connect(ctx.destination);
+				osc.start(now + index * 0.12);
+				osc.stop(now + index * 0.12 + 0.18);
+			});
+		} catch (e) {}
+	}
+};
+
 SpidermanGame.prototype.registerKill = function(x, y) {
 	var now = performance.now();
 	if (now - this.lastKillTime < 1800) {
@@ -292,6 +579,7 @@ SpidermanGame.prototype.registerKill = function(x, y) {
 		if (this.comboCount >= 3) label = "🔥 " + this.comboCount + "x SUPER COMBO!";
 		if (this.comboCount >= 5) label = "⚡ UNSTOPPABLE x" + this.comboCount + "!";
 		this.addFloatingText(x, y - 30, label, "#ffd700", 22);
+		this.playSound("COLLECT_COIN");
 	}
 };
 
@@ -601,6 +889,7 @@ SpidermanGame.prototype.restart = function() {
 
 SpidermanGame.prototype.gameover = function() {
 	this.gameIsOver = true;
+	this.playSound("GAME_OVER");
 	this.showGameoverMenu();
 };
 
@@ -757,15 +1046,18 @@ PowerUp.prototype.collect = function(spiderman) {
 		spiderman.shieldTimer = 360;
 		this.game.addParticles(this.x, this.y, "#00f0ff", 15, 4);
 		this.game.addFloatingText(this.x, this.y - 20, "⚡ SHIELD ACTIVE!", "#00f0ff", 18);
+		this.game.playSound("COLLECT_SHIELD");
 	} else if (this.type === "PIZZA") {
 		spiderman.health = Math.min(spiderman.maxHealth, spiderman.health + 2);
 		this.game.addParticles(this.x, this.y, "#ff0055", 15, 4);
 		this.game.addFloatingText(this.x, this.y - 20, "🍕 HP HEAL!", "#ff0055", 18);
+		this.game.playSound("COLLECT_PIZZA");
 	} else if (this.type === "COIN") {
 		this.game.score += 50;
 		spiderman.rageMeter = Math.min(100, spiderman.rageMeter + 8);
 		this.game.addParticles(this.x, this.y, "#ffd700", 12, 4);
 		this.game.addFloatingText(this.x, this.y - 20, "+50 PTS", "#ffd700", 16);
+		this.game.playSound("COLLECT_COIN");
 	}
 };
 
@@ -837,6 +1129,7 @@ SpiderMan.prototype.activateRage = function() {
 	this.rageMeter = 0;
 	this.game.addParticles(this.x, this.y, "#ff0055", 25, 6);
 	this.game.addFloatingText(this.x, this.y - 40, "🔥 SPIDER-RAGE ACTIVATED! 🔥", "#ff0055", 26);
+	this.game.playSound("RAGE");
 };
 
 SpiderMan.prototype.handleHitWithCharacter = function() {};
@@ -845,11 +1138,13 @@ SpiderMan.prototype.handleHitWithProjectile = function(projectile) {
 	if (projectile.name !== "WEB") {
 		if (this.shieldTimer > 0) {
 			this.game.addParticles(this.x, this.y, "#00f0ff", 10, 5);
+			this.game.playSound("COLLECT_SHIELD");
 			return;
 		}
 		this.health -= projectile.damage;
 		this.wasDamagedOnPreviousFrame = true;
 		this.game.addParticles(this.x, this.y, "#ff0000", 12, 4);
+		this.game.playSound("HIT_PLAYER");
 	}
 };
 
@@ -908,6 +1203,8 @@ SpiderMan.prototype.keyup = function(keyCode) {
 
 SpiderMan.prototype.shoot = function(img) {
 	if (this.web <= 0 && this.rageTimer <= 0) return;
+
+	this.game.playSound("WEB_SHOOT");
 
 	var direction = this.runningDirection || 1;
 	var self = this;
@@ -1002,6 +1299,7 @@ SpiderMan.prototype.update = function() {
 		this.swingAngle = Math.atan2(this.x - this.swingAnchorX, this.y - this.swingAnchorY);
 		this.swingAngularVelocity = 0.04;
 		this.game.addFloatingText(this.x, this.y - 30, "🕸️ WEB SWING!", "#00f0ff", 18);
+		this.game.playSound("SWING");
 	}
 
 	if (this.isSwinging) {
@@ -1031,6 +1329,7 @@ SpiderMan.prototype.update = function() {
 		if (jumpIsDown && !this.jumpKeyPressedPrevious) {
 			if (this.jumpsLeft > 0) {
 				this.addState("JUMP");
+				this.game.playSound("JUMP");
 				if (this.jumpsLeft === 2) {
 					this.velocityY = -12.5;
 					this.game.addParticles(this.x + 15, this.y + 40, "#ffffff", 8, 3);
@@ -1224,6 +1523,7 @@ Enemy.prototype.shoot = function() {
 		else { this.ctx.fillStyle = "red"; this.ctx.fillRect(this.x - this.game.cameraX, this.y, 10, 5); }
 		this.x -= 5;
 	};
+	this.game.playSound("ENEMY_SHOOT");
 	this.game.addProjectile(projectile);
 };
 
@@ -1276,6 +1576,7 @@ Enemy.prototype.remove = function() {
 	this.game.spiderman.rageMeter = Math.min(100, this.game.spiderman.rageMeter + 15);
 	this.game.registerKill(this.x, this.y);
 	this.game.addParticles(this.x, this.y, "#ff3b40", 15, 5);
+	this.game.playSound("ENEMY_DEFEAT");
 	this.game.removeEnemy(this);	
 };
 
@@ -1284,6 +1585,7 @@ Enemy.prototype.handleHitWithProjectile = function(projectile) {
 		this.health -= projectile.damage;
 		this.wasDamagedOnPreviousFrame = true;
 		this.game.addParticles(this.x, this.y, "#00f0ff", 8, 3);
+		this.game.playSound("HIT_ENEMY");
 	}
 };
 
@@ -1318,6 +1620,7 @@ FlyingDrone.prototype.shoot = function() {
 		this.ctx.shadowBlur = 0;
 		this.x -= 6;
 	};
+	this.game.playSound("ENEMY_SHOOT");
 	this.game.addProjectile(projectile);
 };
 
@@ -1354,6 +1657,7 @@ FlyingDrone.prototype.remove = function() {
 	this.game.spiderman.rageMeter = Math.min(100, this.game.spiderman.rageMeter + 15);
 	this.game.registerKill(this.x, this.y);
 	this.game.addParticles(this.x, this.y, "#ff0055", 16, 5);
+	this.game.playSound("ENEMY_DEFEAT");
 	this.game.removeEnemy(this);
 };
 
@@ -1361,6 +1665,7 @@ FlyingDrone.prototype.handleHitWithProjectile = function(projectile) {
 	if (projectile.name === "WEB") {
 		this.health -= projectile.damage;
 		this.game.addParticles(this.x, this.y, "#00f0ff", 8, 3);
+		this.game.playSound("HIT_ENEMY");
 	}
 };
 
@@ -1398,6 +1703,7 @@ VenomBoss.prototype.shoot = function() {
 		this.ctx.shadowBlur = 0;
 		this.x -= 6.5;
 	};
+	this.game.playSound("ENEMY_SHOOT");
 	this.game.addProjectile(projectile);
 };
 
@@ -1464,6 +1770,7 @@ VenomBoss.prototype.remove = function() {
 	this.game.addParticles(this.x, this.y, "#a855f7", 35, 8);
 	this.game.addFloatingText(this.x, this.y - 40, "☠️ VENOM DEFEATED! +100 PTS", "#a855f7", 26);
 	this.game.bossActive = false;
+	this.game.playSound("ENEMY_DEFEAT");
 	this.game.removeEnemy(this);
 };
 
@@ -1472,6 +1779,7 @@ VenomBoss.prototype.handleHitWithProjectile = function(projectile) {
 		this.health -= projectile.damage;
 		this.wasDamagedOnPreviousFrame = true;
 		this.game.addParticles(this.x, this.y, "#a855f7", 10, 4);
+		this.game.playSound("HIT_ENEMY");
 	}
 };
 
