@@ -8,11 +8,11 @@
       </p>
       <p>
         <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-red.svg" alt="License: MIT" /></a>
-        <img src="https://img.shields.io/badge/Audio-SFX%20%26%20Music-00f0ff.svg" alt="Audio" />
-        <img src="https://img.shields.io/badge/Engine-60%20FPS%20Locked-ff0055.svg" alt="FPS" />
-        <img src="https://img.shields.io/badge/Language-Vanilla%20JS-yellow.svg" alt="JS" />
+        <img src="https://img.shields.io/badge/Mobile-Android%20%26%20iOS%20Touch-00f0ff.svg" alt="Mobile" />
+        <img src="https://img.shields.io/badge/Audio-SFX%20%26%20Music-ff0055.svg" alt="Audio" />
+        <img src="https://img.shields.io/badge/Engine-60%20FPS%20Locked-yellow.svg" alt="FPS" />
       </p>
-      <p><em>Swing through city skylines, shoot web blasts, defeat rooftop thugs & flying drones, collect powerups, unleash Spider-Rage, and obliterate the Venom Boss in a dynamic retro arcade world with immersive sound effects!</em></p>
+      <p><em>Swing through city skylines, shoot web blasts, defeat rooftop thugs & flying drones, collect powerups, unleash Spider-Rage, and obliterate the Venom Boss in a dynamic retro arcade world with touch gestures & audio!</em></p>
     </td>
     <td width="35%" align="center" valign="middle">
       <img src="images/spidee-hero-portrait.png" width="170" alt="Spidee Pixel Art Portrait" />
@@ -22,7 +22,7 @@
 
 ---
 
-## 🕹️ Play Live in Browser
+## 🌐 Play Live Demo
 
 👉 **[https://spideee.netlify.app](https://spideee.netlify.app)** 👈
 
@@ -30,60 +30,59 @@
 
 ## 🌟 Highlights & Key Features
 
-### 🔊 1. **Immersive Audio & Sound Effects Engine**
-- **Web & Bullet Sounds**: Dynamic audio for web shooting, knife throws, laser shots, and symbiote blasts.
-- **Impact & Damage Hits**: Punchy thuds and hit SFX when hitting enemies or taking damage.
-- **Collectibles & Power-Ups**: Retro coin chimes, shield activation hums, and HP heal melodies.
-- **Spider-Man Music Loop**: Iconic retro theme music tracks with full volume & mute controls.
+### 📱 1. **Mobile Responsive & Touch Gestures**
+- **Landscape Orientation Prompt**: Automatic landscape prompt on Android/iOS mobile screens for widescreen gaming.
+- **Floating Movement Controls**: `◀` (Left) & `▶` (Right) buttons + `🕸️ SHOOT` action button.
+- **On-Screen Canvas Touch Gestures**:
+  - 👆 **1x Tap**: Single Jump
+  - ✌️ **2x Tap**: Double Jump
+  - ⏱️ **Long Press (>220ms)**: Web Swing Pendulum
+  - ⚡ **3x Tap**: Spider-Rage Super Mode
 
-### 🔥 2. **Spider-Rage Super Mode**
+### 🔊 2. **Immersive Audio & Sound Effects Engine**
+- **Web & Bullet SFX**: Web shooting, knife throws, laser shots, and symbiote blasts.
+- **Impact & Damage Hits**: Punch thuds when hitting enemies or taking damage.
+- **Collectibles & Power-Ups**: Retro coin chimes, shield hums, and HP heal melodies.
+- **Spider-Man Music Loop**: Retro theme music tracks with volume & mute controls.
+
+### 🔥 3. **Spider-Rage Super Mode**
 - Fill up the **Rage Gauge** (+15% per kill, +8% per coin).
-- Press **`SHIFT`** when 100% full to activate 8 seconds of **Spider-Rage**:
+- Press **`SHIFT`** (or 3x tap on mobile) to activate 8 seconds of **Spider-Rage**:
   - Screen shake & glowing crimson neon aura.
   - **Triple Spread-Shot Laser Webs** with **Infinite Web Ammo**!
 
-### 🦹 3. **Venom Boss Fight**
+### 🦹 4. **Venom Boss Fight**
 - Spawns dynamically at score milestones with a **`⚠️ WARNING! VENOM APPROACHES!`** alarm.
-- Features custom symbiote attacks and a boss health bar.
+- Features symbiote attacks and a boss health bar.
 - Defeating Venom triggers a **slow-motion camera finish**, +100 bonus points, and full HP/Ammo refill!
 
-### 🌧️ 4. **Dynamic Weather & Day/Night Transitions**
+### 🌧️ 5. **Dynamic Weather & Day/Night Transitions**
 - Real-time environmental cycling:
   - 🌇 **Sunset City** (Golden orange & magenta sky)
   - 🌃 **Cyberpunk Night** (Deep navy sky with twinkling stars)
   - ⚡ **Thunderstorm** (Falling rain particles & lightning flashes!)
 
-### 🕸️ 5. **Web Swing Pendulum Physics**
-- Hold **`W`** in mid-air to attach a web tether rope to sky anchors.
+### 🕸️ 6. **Web Swing Pendulum Physics**
+- Hold **`W`** in mid-air (or long press screen) to attach web tether rope.
 - Uses real gravitational pendulum physics (`angle`, `angularVelocity`).
-- Release `W` to catapult forward across rooftop gaps with massive momentum!
-
-### 🦘 6. **Double Jump & Precision Controls**
-- Press **`Up Arrow` (↑)** twice mid-air for an energetic double jump with cyan particle rings.
-- Smooth 60 FPS performance and physics engine.
 
 ### 🏆 7. **High Score Persistence**
-- Automatically saves and loads your all-time **BEST** score using `localStorage`.
-
-### 🍕 8. **Power-Ups & Collectibles**
-- ⚡ **Spider-Sense Shield**: Invincibility aura for 6 seconds.
-- 🍕 **Pizza HP Boost**: Heals +2 HP hearts.
-- 🪙 **Spider Coins**: +50 bonus points and golden particle explosions.
+- Automatically saves and loads your all-time **BEST** record using `localStorage`.
 
 ---
 
 ## 🎮 Controls Legend
 
-| Key | Action |
-| :--- | :--- |
-| **`Spacebar`** | Shoot Web / Attack |
-| **`←` / `→`** | Move Left / Right |
-| **`↑`** | Single Jump |
-| **`↑` + `↑`** | **Double Jump** |
-| **`W` (Hold in Air)** | **Web Swing Pendulum** |
-| **`Shift`** | **Activate Spider-Rage Mode** |
-| **`Esc`** | Pause Game / Menu |
-| **`Enter`** | Quick Restart on Game Over |
+| Desktop Key | Mobile Gesture / Button | Action |
+| :--- | :--- | :--- |
+| **`Spacebar`** | 🕸️ **SHOOT Button** | Shoot Web / Attack |
+| **`←` / `→`** | **`◀` / `▶` Floating Buttons** | Move Left / Right |
+| **`↑`** | 👆 **1x Tap Screen** | Single Jump |
+| **`↑` + `↑`** | ✌️ **2x Tap Screen** | **Double Jump** |
+| **`W` (Hold)** | ⏱️ **Long Press Screen** | **Web Swing Pendulum** |
+| **`Shift`** | ⚡ **3x Tap Screen** | **Activate Spider-Rage Mode** |
+| **`Esc`** | ⏸️ **Pause Button** | Pause Game / Menu |
+| **`Enter`** | 🔄 **Restart Button** | Quick Restart on Game Over |
 
 ---
 
