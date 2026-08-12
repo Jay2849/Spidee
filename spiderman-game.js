@@ -228,8 +228,8 @@ SpidermanGame.prototype.load = function() {
 				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄</button>' +
 			'</div>' +
 			'<div class="touch-overlay-right">' +
-				'<button class="touch-btn touch-btn-nav touch-btn-forward" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
 				'<button class="touch-btn touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️<br>SHOOT</button>' +
+				'<button class="touch-btn touch-btn-nav touch-btn-forward" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
 			'</div>';
 
 		var guideBar = document.createElement("div");
@@ -303,9 +303,9 @@ SpidermanGame.prototype.load = function() {
 		bindTouch("spideeBtnPause", KEY.ESC);
 		bindTouch("spideeBtnRestart", KEY.ENTER);
 
-		// Fullscreen Touch Gesture Engine for Game Canvas
+		// Instant 0ms Latency Touch Gesture Engine for Game Canvas
 		var tapCount = 0;
-		var tapResetTimeout = null;
+		var lastTapTime = 0;
 		var longPressTimer = null;
 		var isLongPress = false;
 		var touchStartTime = 0;
@@ -315,15 +315,45 @@ SpidermanGame.prototype.load = function() {
 			if (e.cancelable) e.preventDefault();
 			handleUserInteraction();
 
-			touchStartTime = Date.now();
+			var now = Date.now();
+			touchStartTime = now;
 			isLongPress = false;
 
+			if (now - lastTapTime < 320) {
+				tapCount++;
+			} else {
+				tapCount = 1;
+			}
+			lastTapTime = now;
+
+			if (tapCount === 1) {
+				// Instant 1x Tap -> Single Jump (0ms Lag!)
+				if (navigator.vibrate) try { navigator.vibrate(15); } catch(err){}
+				self.spiderman.keydown(KEY.ARROW_UP);
+				setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 90);
+			} else if (tapCount === 2) {
+				// Instant 2x Tap -> Double Jump (0ms Lag!)
+				if (navigator.vibrate) try { navigator.vibrate(25); } catch(err){}
+				self.spiderman.keydown(KEY.ARROW_UP);
+				setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 90);
+			} else if (tapCount >= 3) {
+				// Instant 3x Tap -> Spider-Rage Mode!
+				if (navigator.vibrate) try { navigator.vibrate([30, 20, 30]); } catch(err){}
+				if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
+					self.spiderman.activateRage();
+				} else {
+					self.addFloatingText(self.spiderman.x, self.spiderman.y - 30, "⚡ RAGE METER NOT FULL!", "#ff0055", 18);
+				}
+				tapCount = 0;
+			}
+
+			// Long Press Timer (> 180ms triggers Web Swing W key)
 			clearTimeout(longPressTimer);
 			longPressTimer = setTimeout(function() {
 				isLongPress = true;
-				if (navigator.vibrate) try { navigator.vibrate(30); } catch(err){}
+				if (navigator.vibrate) try { navigator.vibrate(25); } catch(err){}
 				self.spiderman.keydown(KEY.W);
-			}, 220);
+			}, 180);
 		};
 
 		var handleCanvasTouchEnd = function(e) {
@@ -331,47 +361,10 @@ SpidermanGame.prototype.load = function() {
 			if (e.cancelable) e.preventDefault();
 			clearTimeout(longPressTimer);
 
-			var touchDuration = Date.now() - touchStartTime;
-
 			if (isLongPress) {
 				self.spiderman.keyup(KEY.W);
 				isLongPress = false;
 				tapCount = 0;
-				return;
-			}
-
-			if (touchDuration < 220) {
-				tapCount++;
-				clearTimeout(tapResetTimeout);
-
-				tapResetTimeout = setTimeout(function() {
-					if (tapCount === 1) {
-						// Single Click / Tap -> Single Jump
-						if (navigator.vibrate) try { navigator.vibrate(20); } catch(err){}
-						self.spiderman.keydown(KEY.ARROW_UP);
-						setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 80);
-					} else if (tapCount === 2) {
-						// Double Click / Tap -> Double Jump
-						if (navigator.vibrate) try { navigator.vibrate(30); } catch(err){}
-						self.spiderman.keydown(KEY.ARROW_UP);
-						setTimeout(function() {
-							self.spiderman.keyup(KEY.ARROW_UP);
-							setTimeout(function() {
-								self.spiderman.keydown(KEY.ARROW_UP);
-								setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 80);
-							}, 60);
-						}, 60);
-					} else if (tapCount >= 3) {
-						// Triple Click / Tap -> Spider-Rage Mode!
-						if (navigator.vibrate) try { navigator.vibrate([40, 30, 40]); } catch(err){}
-						if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
-							self.spiderman.activateRage();
-						} else {
-							self.addFloatingText(self.spiderman.x, self.spiderman.y - 30, "⚡ RAGE METER NOT FULL!", "#ff0055", 18);
-						}
-					}
-					tapCount = 0;
-				}, 260);
 			}
 		};
 
