@@ -210,6 +210,11 @@ SpidermanGame.prototype.load = function() {
 
 	var createTouchControls = function() {
 		if (document.getElementById("spideeMobileControls")) return;
+
+		if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+			window.screen.orientation.lock("landscape").catch(function() {});
+		}
+
 		var container = document.createElement("div");
 		container.className = "mobile-touch-controls";
 		container.id = "spideeMobileControls";
@@ -224,15 +229,22 @@ SpidermanGame.prototype.load = function() {
 			'</div>' +
 			'<div class="touch-group touch-right-group">' +
 				'<button class="touch-btn touch-btn-action touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️ SHOOT</button>' +
-				'<button class="touch-btn touch-btn-action touch-btn-jump" id="spideeBtnJump" aria-label="Jump">⬆️ JUMP</button>' +
-				'<button class="touch-btn touch-btn-action touch-btn-swing" id="spideeBtnSwing" aria-label="Web Swing">🕷️ SWING</button>' +
-				'<button class="touch-btn touch-btn-action touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
 			'</div>';
+
+		var guideBar = document.createElement("div");
+		guideBar.className = "gesture-guide-bar";
+		guideBar.innerHTML = 
+			'<div class="gesture-guide-item"><span>👆 1x Tap:</span> Jump</div>' +
+			'<div class="gesture-guide-item"><span>✌️ 2x Tap:</span> Double Jump</div>' +
+			'<div class="gesture-guide-item"><span>⏱️ Hold:</span> Web Swing</div>' +
+			'<div class="gesture-guide-item"><span>⚡ 3x Tap:</span> Spider-Rage</div>';
 
 		if (self.canvas.parentNode) {
 			self.canvas.parentNode.appendChild(container);
+			self.canvas.parentNode.appendChild(guideBar);
 		} else {
 			document.body.appendChild(container);
+			document.body.appendChild(guideBar);
 		}
 
 		var bindTouch = function(btnId, keyCode) {
@@ -253,12 +265,6 @@ SpidermanGame.prototype.load = function() {
 					self.escapeKey = true;
 					if (self.paused) self.unpause();
 					else self.pause();
-					return;
-				}
-				if (keyCode === KEY.SHIFT) {
-					if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
-						self.spiderman.activateRage();
-					}
 					return;
 				}
 
@@ -283,11 +289,86 @@ SpidermanGame.prototype.load = function() {
 		bindTouch("spideeBtnLeft", KEY.ARROW_LEFT);
 		bindTouch("spideeBtnRight", KEY.ARROW_RIGHT);
 		bindTouch("spideeBtnShoot", KEY.SPACEBAR);
-		bindTouch("spideeBtnJump", KEY.ARROW_UP);
-		bindTouch("spideeBtnSwing", KEY.W);
-		bindTouch("spideeBtnRage", KEY.SHIFT);
 		bindTouch("spideeBtnPause", KEY.ESC);
 		bindTouch("spideeBtnRestart", KEY.ENTER);
+
+		// Fullscreen Touch Gesture Engine for Game Canvas
+		var tapCount = 0;
+		var tapResetTimeout = null;
+		var longPressTimer = null;
+		var isLongPress = false;
+		var touchStartTime = 0;
+
+		var handleCanvasTouchStart = function(e) {
+			if (e.target.closest && e.target.closest(".touch-btn")) return;
+			if (e.cancelable) e.preventDefault();
+			handleUserInteraction();
+
+			touchStartTime = Date.now();
+			isLongPress = false;
+
+			clearTimeout(longPressTimer);
+			longPressTimer = setTimeout(function() {
+				isLongPress = true;
+				if (navigator.vibrate) try { navigator.vibrate(30); } catch(err){}
+				self.spiderman.keydown(KEY.W);
+			}, 220);
+		};
+
+		var handleCanvasTouchEnd = function(e) {
+			if (e.target.closest && e.target.closest(".touch-btn")) return;
+			if (e.cancelable) e.preventDefault();
+			clearTimeout(longPressTimer);
+
+			var touchDuration = Date.now() - touchStartTime;
+
+			if (isLongPress) {
+				self.spiderman.keyup(KEY.W);
+				isLongPress = false;
+				tapCount = 0;
+				return;
+			}
+
+			if (touchDuration < 220) {
+				tapCount++;
+				clearTimeout(tapResetTimeout);
+
+				tapResetTimeout = setTimeout(function() {
+					if (tapCount === 1) {
+						// Single Click / Tap -> Single Jump
+						if (navigator.vibrate) try { navigator.vibrate(20); } catch(err){}
+						self.spiderman.keydown(KEY.ARROW_UP);
+						setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 80);
+					} else if (tapCount === 2) {
+						// Double Click / Tap -> Double Jump
+						if (navigator.vibrate) try { navigator.vibrate(30); } catch(err){}
+						self.spiderman.keydown(KEY.ARROW_UP);
+						setTimeout(function() {
+							self.spiderman.keyup(KEY.ARROW_UP);
+							setTimeout(function() {
+								self.spiderman.keydown(KEY.ARROW_UP);
+								setTimeout(function() { self.spiderman.keyup(KEY.ARROW_UP); }, 80);
+							}, 60);
+						}, 60);
+					} else if (tapCount >= 3) {
+						// Triple Click / Tap -> Spider-Rage Mode!
+						if (navigator.vibrate) try { navigator.vibrate([40, 30, 40]); } catch(err){}
+						if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
+							self.spiderman.activateRage();
+						} else {
+							self.addFloatingText(self.spiderman.x, self.spiderman.y - 30, "⚡ RAGE METER NOT FULL!", "#ff0055", 18);
+						}
+					}
+					tapCount = 0;
+				}, 260);
+			}
+		};
+
+		self.canvas.addEventListener("touchstart", handleCanvasTouchStart, { passive: false });
+		self.canvas.addEventListener("touchend", handleCanvasTouchEnd, { passive: false });
+		self.canvas.addEventListener("touchcancel", handleCanvasTouchEnd, { passive: false });
+		self.canvas.addEventListener("mousedown", handleCanvasTouchStart);
+		self.canvas.addEventListener("mouseup", handleCanvasTouchEnd);
 	};
 
 	createTouchControls();

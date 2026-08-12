@@ -42,7 +42,7 @@
 		font-size: 36px;
 		color: #e62429;
 		font-family: SpidermanGamePixelFont, Helvetica, Arial;
-		margin-bottom: 10px;
+		margin-bottom: 8px;
 		text-transform: uppercase;
 		letter-spacing: 3px;
 		text-shadow: 0 0 12px rgba(230, 36, 41, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -70,7 +70,7 @@
 	}
 
 	.keyboard {
-		margin: 0 0 12px 0;
+		margin: 0 0 10px 0;
 		font-size: 14px;
 	    font-family: Helvetica, Arial, sans-serif;
 	    color: #cbd5e1;
@@ -85,7 +85,7 @@
 	#canvas {
 		width: 100% !important;
 		height: auto !important;
-		max-height: 68vh;
+		max-height: 65vh;
 		border-radius: 8px;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 36, 41, 0.2);
 		touch-action: none;
@@ -96,15 +96,22 @@
 			display: none !important;
 		}
 		.game-title {
-			font-size: 26px;
-			margin-bottom: 6px;
+			font-size: 24px;
+			margin-bottom: 4px;
 		}
 		#canvas {
-			max-height: 60vh;
+			max-height: 58vh;
 		}
 	}
 </style>
 <body>
+	<div class="landscape-prompt-overlay" id="landscapeOverlay">
+		<div class="landscape-prompt-icon">🔄📱</div>
+		<div class="landscape-prompt-text">ROTATE YOUR PHONE</div>
+		<div class="landscape-prompt-subtext">Please flip your device horizontally to Landscape mode for the best Spidee arcade experience!</div>
+		<div class="gesture-hint-badge">👆 Tap = Jump | ✌️ Double Tap = Double Jump | ⏱️ Hold = Web Swing | ⚡ Triple Tap = Rage</div>
+	</div>
+
 	<div class="canvas-wrapper">
 		<div class="game-title">Spidee</div>
 		<div class="keyboard">
