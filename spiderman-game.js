@@ -216,19 +216,20 @@ SpidermanGame.prototype.load = function() {
 		}
 
 		var container = document.createElement("div");
-		container.className = "mobile-touch-controls";
+		container.className = "mobile-touch-controls-overlay";
 		container.id = "spideeMobileControls";
 		container.innerHTML = 
-			'<div class="touch-group touch-left-group">' +
+			'<div class="touch-overlay-left">' +
 				'<button class="touch-btn touch-btn-nav" id="spideeBtnLeft" aria-label="Move Left">◀</button>' +
 				'<button class="touch-btn touch-btn-nav" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
+				'<button class="touch-btn touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
 			'</div>' +
-			'<div class="touch-group touch-center-group">' +
+			'<div class="touch-overlay-top">' +
 				'<button class="touch-btn touch-btn-utility" id="spideeBtnPause" aria-label="Pause">⏸️</button>' +
 				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄</button>' +
 			'</div>' +
-			'<div class="touch-group touch-right-group">' +
-				'<button class="touch-btn touch-btn-action touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️ SHOOT</button>' +
+			'<div class="touch-overlay-right">' +
+				'<button class="touch-btn touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️<br>SHOOT</button>' +
 			'</div>';
 
 		var guideBar = document.createElement("div");
@@ -241,10 +242,11 @@ SpidermanGame.prototype.load = function() {
 
 		if (self.canvas.parentNode) {
 			self.canvas.parentNode.appendChild(container);
-			self.canvas.parentNode.appendChild(guideBar);
+			if (self.canvas.parentNode.parentNode) {
+				self.canvas.parentNode.parentNode.appendChild(guideBar);
+			}
 		} else {
 			document.body.appendChild(container);
-			document.body.appendChild(guideBar);
 		}
 
 		var bindTouch = function(btnId, keyCode) {
@@ -265,6 +267,14 @@ SpidermanGame.prototype.load = function() {
 					self.escapeKey = true;
 					if (self.paused) self.unpause();
 					else self.pause();
+					return;
+				}
+				if (keyCode === KEY.SHIFT) {
+					if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
+						self.spiderman.activateRage();
+					} else {
+						self.addFloatingText(self.spiderman.x, self.spiderman.y - 30, "⚡ RAGE METER NOT FULL!", "#ff0055", 18);
+					}
 					return;
 				}
 
@@ -288,6 +298,7 @@ SpidermanGame.prototype.load = function() {
 
 		bindTouch("spideeBtnLeft", KEY.ARROW_LEFT);
 		bindTouch("spideeBtnRight", KEY.ARROW_RIGHT);
+		bindTouch("spideeBtnRage", KEY.SHIFT);
 		bindTouch("spideeBtnShoot", KEY.SPACEBAR);
 		bindTouch("spideeBtnPause", KEY.ESC);
 		bindTouch("spideeBtnRestart", KEY.ENTER);

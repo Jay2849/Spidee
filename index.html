@@ -36,6 +36,14 @@
 		box-sizing: border-box;
 	}
 
+	.canvas-container {
+		position: relative;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
 	.game-title {
 		width: 100%;
 		text-align: center;
@@ -140,7 +148,9 @@
 			<div class="key">Enter</div>
 			<span class="action">Restart</span>
 		</div>
-		<canvas id="canvas"></canvas>
+		<div class="canvas-container" id="canvasContainer">
+			<canvas id="canvas"></canvas>
+		</div>
 	</div>
 </body>
 <script type="text/javascript" src="spiderman-game.js"></script>
