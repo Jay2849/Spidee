@@ -1,20 +1,23 @@
-<div align="center">
-
-<img src="images/spidee-hero-portrait.png" width="360" alt="Spidee Pixel Art Portrait" />
-
-# 🕸️ SPIDEE ⚡
-### *The Ultimate High-Octane Retro Arcade Platformer Runner*
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
-[![Netlify Deploy](https://img.shields.io/badge/Deploy-Netlify%20Ready-00C7B7?logo=netlify)](https://www.netlify.com/)
-[![FPS](https://img.shields.io/badge/Engine-60%20FPS%20Locked-ff0055.svg)](#)
-[![JS](https://img.shields.io/badge/Language-Vanilla%20JS-yellow.svg)](#)
-
-*Swing through city skylines, defeat rooftops thugs & flying drones, unleash Spider-Rage super moves, and obliterate the Venom Boss in a dynamic weather-shifting retro arcade world!*
+<table>
+  <tr>
+    <td width="65%" valign="top">
+      <h1>🕸️ SPIDEE ⚡</h1>
+      <h3><em>The Ultimate High-Octane Retro Arcade Platformer Runner</em></h3>
+      <p>
+        <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-red.svg" alt="License: MIT" /></a>
+        <a href="https://www.netlify.com/"><img src="https://img.shields.io/badge/Deploy-Netlify%20Ready-00C7B7?logo=netlify" alt="Netlify Deploy" /></a>
+        <img src="https://img.shields.io/badge/Engine-60%20FPS%20Locked-ff0055.svg" alt="FPS" />
+        <img src="https://img.shields.io/badge/Language-Vanilla%20JS-yellow.svg" alt="JS" />
+      </p>
+      <p><em>Swing through city skylines, defeat rooftops thugs & flying drones, unleash Spider-Rage super moves, and obliterate the Venom Boss in a dynamic weather-shifting retro arcade world!</em></p>
+    </td>
+    <td width="35%" align="center" valign="middle">
+      <img src="images/spidee-hero-portrait.png" width="170" alt="Spidee Pixel Art Portrait" />
+    </td>
+  </tr>
+</table>
 
 ---
-
-</div>
 
 ## 🌟 Highlights & Key Features
 
