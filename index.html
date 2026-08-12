@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Spidee - Action Game in HTML5, CSS3 and Javascript" />
+	<title>Spidee</title>
+	<link rel="shortcut icon" href="images/spider-head.png" />
+</head>
+<style type="text/css">
+	html,
+	body {
+		height: 100%;
+		width: 100%;
+		margin: 0;
+		font-size: 0;
+		background: #0a0e1a;
+		overflow: hidden;
+	}
+
+	.canvas-wrapper {
+		float: left;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+
+		-webkit-transform: translate(-50%, -50%);
+		-moz-transform: translate(-50%, -50%);
+		-ms-transform: translate(-50%, -50%);
+		-o-transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%);
+	}
+
+	.game-title {
+		width: 100%;
+		text-align: center;
+		font-size: 38px;
+		color: #e62429;
+		font-family: SpidermanGamePixelFont, Helvetica, Arial;
+		margin-bottom: 12px;
+		text-transform: uppercase;
+		letter-spacing: 3px;
+		text-shadow: 0 0 12px rgba(230, 36, 41, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.8);
+	}
+
+	.key {
+	    height: 32px;
+	    min-width: 25px;
+	    line-height: 32px;
+	    text-align: center;
+	    border: 1px solid #444;
+	    border-bottom: 3px solid #222;
+	    background: #1e293b;
+	    display: inline-block;
+	    padding: 0 6px;
+	    border-radius: 6px;
+	    box-shadow: inset 0 -1px 0 #111;
+	    color: #f1f5f9;
+	    font-weight: bold;
+	    font-size: 13px;
+	}
+
+	.key.spacebar {
+		padding: 0 25px;
+	}
+
+	.keyboard {
+		margin: 0 0 12px 0;
+		font-size: 14px;
+	    font-family: Helvetica, Arial, sans-serif;
+	    color: #cbd5e1;
+	    text-align: center;
+	}
+
+	.action {
+		margin-right: 12px;
+		color: #94a3b8;
+	}
+
+	#canvas {
+		border-radius: 8px;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 36, 41, 0.2);
+	}
+</style>
+<body>
+	<div class="canvas-wrapper">
+		<div class="game-title">Spidee</div>
+		<div class="keyboard">
+			<div class="key spacebar">Spacebar</div>
+			<span class="action">Shoot</span>
+
+			<div class="key">←</div>
+			<div class="key">→</div>
+			<span class="action">Move</span>
+
+			<div class="key">↑</div>
+			<span class="action">Jump</span>
+
+			<div class="key">↑ ↑</div>
+			<span class="action">Double Jump</span>
+
+			<div class="key">W</div>
+			<span class="action">Web Swing</span>
+
+			<div class="key">Shift</div>
+			<span class="action">Rage Mode</span>
+
+			<div class="key">Esc</div>
+			<span class="action">Pause</span>
+
+			<div class="key">Enter</div>
+			<span class="action">Restart</span>
+		</div>
+		<canvas id="canvas"></canvas>
+	</div>
+</body>
+<script type="text/javascript" src="spiderman-game.js"></script>
+<script type="text/javascript">
+
+var game = new SpidermanGame({
+	canvas: "#canvas"
+});
+game.load();
+
+</script>
+</html>

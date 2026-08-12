@@ -1,0 +1,95 @@
+@font-face {
+	font-family: SpidermanGamePixelFont;
+	src: url(../fonts/pixel.otf);
+}
+
+.spiderman-game-menu-container,
+.spiderman-game-menu-container * {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+.spiderman-game-menu-container {
+	position: absolute;
+	display: none;
+	height: auto;
+	min-width: 320px;
+	padding: 25px 35px;
+	background: rgba(10, 14, 26, 0.88);
+	backdrop-filter: blur(10px);
+	border: 2px solid #e62429;
+	border-radius: 12px;
+	box-shadow: 0 0 25px rgba(230, 36, 41, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.9);
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	z-index: 100;
+}
+
+.spiderman-game-menu-title {
+	text-align: center;
+	font-size: 24px;
+	line-height: 40px;
+	font-family: SpidermanGamePixelFont, Helvetica, sans-serif;
+	color: #fff;
+	text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+	display: block;
+	padding: 5px 0;
+	letter-spacing: 1px;
+}
+
+.spiderman-game-menu-title.highscore-highlight {
+	color: #ffd700;
+	font-size: 20px;
+	text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.spiderman-game-menu-button {
+    line-height: 40px;
+    font-size: 16px;
+    text-align: center;
+    font-family: SpidermanGamePixelFont, Helvetica, sans-serif;
+    color: #ffffff;
+    background: #e62429;
+    margin: 10px 0;
+    padding: 2px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(230, 36, 41, 0.3);
+}
+
+.spiderman-game-menu-button:hover {
+    background: #ff3b40;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 59, 64, 0.5);
+}
+
+.spiderman-game-menu-button:active {
+	transform: translateY(1px);
+	box-shadow: 0 2px 5px rgba(230, 36, 41, 0.5);
+}
+
+@keyframes ragePulse {
+	0% { box-shadow: 0 0 15px rgba(255, 0, 80, 0.4); }
+	50% { box-shadow: 0 0 35px rgba(255, 0, 80, 0.9); }
+	100% { box-shadow: 0 0 15px rgba(255, 0, 80, 0.4); }
+}
+
+.rage-active #canvas {
+	animation: ragePulse 0.5s infinite alternate;
+	border: 2px solid #ff0055 !important;
+}
