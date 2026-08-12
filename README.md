@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="images/spidee-hero-portrait.png" width="360" alt="Spidee Pixel Art Portrait" />
+
 # 🕸️ SPIDEE ⚡
 ### *The Ultimate High-Octane Retro Arcade Platformer Runner*
 
