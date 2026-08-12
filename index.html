@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 	<meta name="description" content="Spidee - Action Game in HTML5, CSS3 and Javascript" />
 	<title>Spidee</title>
 	<link rel="shortcut icon" href="images/spider-head.png" />
@@ -13,31 +13,36 @@
 		height: 100%;
 		width: 100%;
 		margin: 0;
+		padding: 0;
 		font-size: 0;
 		background: #0a0e1a;
 		overflow: hidden;
+		touch-action: none;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 
 	.canvas-wrapper {
-		float: left;
 		position: absolute;
 		top: 50%;
 		left: 50%;
-
-		-webkit-transform: translate(-50%, -50%);
-		-moz-transform: translate(-50%, -50%);
-		-ms-transform: translate(-50%, -50%);
-		-o-transform: translate(-50%, -50%);
 		transform: translate(-50%, -50%);
+		width: 95vw;
+		max-width: 1111px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		box-sizing: border-box;
 	}
 
 	.game-title {
 		width: 100%;
 		text-align: center;
-		font-size: 38px;
+		font-size: 36px;
 		color: #e62429;
 		font-family: SpidermanGamePixelFont, Helvetica, Arial;
-		margin-bottom: 12px;
+		margin-bottom: 10px;
 		text-transform: uppercase;
 		letter-spacing: 3px;
 		text-shadow: 0 0 12px rgba(230, 36, 41, 0.6), 2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -78,8 +83,25 @@
 	}
 
 	#canvas {
+		width: 100% !important;
+		height: auto !important;
+		max-height: 68vh;
 		border-radius: 8px;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 36, 41, 0.2);
+		touch-action: none;
+	}
+
+	@media (max-width: 768px) {
+		.keyboard {
+			display: none !important;
+		}
+		.game-title {
+			font-size: 26px;
+			margin-bottom: 6px;
+		}
+		#canvas {
+			max-height: 60vh;
+		}
 	}
 </style>
 <body>

@@ -208,6 +208,90 @@ SpidermanGame.prototype.load = function() {
 	};
 	document.addEventListener("click", handleUserInteraction);
 
+	var createTouchControls = function() {
+		if (document.getElementById("spideeMobileControls")) return;
+		var container = document.createElement("div");
+		container.className = "mobile-touch-controls";
+		container.id = "spideeMobileControls";
+		container.innerHTML = 
+			'<div class="touch-group touch-left-group">' +
+				'<button class="touch-btn touch-btn-nav" id="spideeBtnLeft" aria-label="Move Left">◀</button>' +
+				'<button class="touch-btn touch-btn-nav" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
+			'</div>' +
+			'<div class="touch-group touch-center-group">' +
+				'<button class="touch-btn touch-btn-utility" id="spideeBtnPause" aria-label="Pause">⏸️</button>' +
+				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄</button>' +
+			'</div>' +
+			'<div class="touch-group touch-right-group">' +
+				'<button class="touch-btn touch-btn-action touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️ SHOOT</button>' +
+				'<button class="touch-btn touch-btn-action touch-btn-jump" id="spideeBtnJump" aria-label="Jump">⬆️ JUMP</button>' +
+				'<button class="touch-btn touch-btn-action touch-btn-swing" id="spideeBtnSwing" aria-label="Web Swing">🕷️ SWING</button>' +
+				'<button class="touch-btn touch-btn-action touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
+			'</div>';
+
+		if (self.canvas.parentNode) {
+			self.canvas.parentNode.appendChild(container);
+		} else {
+			document.body.appendChild(container);
+		}
+
+		var bindTouch = function(btnId, keyCode) {
+			var btn = document.getElementById(btnId);
+			if (!btn) return;
+
+			var handlePress = function(e) {
+				if (e.cancelable) e.preventDefault();
+				handleUserInteraction();
+				btn.classList.add("active");
+				if (navigator.vibrate) try { navigator.vibrate(20); } catch(err){}
+
+				if (keyCode === KEY.ENTER && self.gameIsOver) {
+					self.restart();
+					return;
+				}
+				if (keyCode === KEY.ESC && !self.escapeKey) {
+					self.escapeKey = true;
+					if (self.paused) self.unpause();
+					else self.pause();
+					return;
+				}
+				if (keyCode === KEY.SHIFT) {
+					if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
+						self.spiderman.activateRage();
+					}
+					return;
+				}
+
+				self.spiderman.keydown(keyCode);
+			};
+
+			var handleRelease = function(e) {
+				if (e.cancelable) e.preventDefault();
+				btn.classList.remove("active");
+				if (keyCode === KEY.ESC) self.escapeKey = false;
+				self.spiderman.keyup(keyCode);
+			};
+
+			btn.addEventListener("touchstart", handlePress, { passive: false });
+			btn.addEventListener("touchend", handleRelease, { passive: false });
+			btn.addEventListener("touchcancel", handleRelease, { passive: false });
+			btn.addEventListener("mousedown", handlePress);
+			btn.addEventListener("mouseup", handleRelease);
+			btn.addEventListener("mouseleave", handleRelease);
+		};
+
+		bindTouch("spideeBtnLeft", KEY.ARROW_LEFT);
+		bindTouch("spideeBtnRight", KEY.ARROW_RIGHT);
+		bindTouch("spideeBtnShoot", KEY.SPACEBAR);
+		bindTouch("spideeBtnJump", KEY.ARROW_UP);
+		bindTouch("spideeBtnSwing", KEY.W);
+		bindTouch("spideeBtnRage", KEY.SHIFT);
+		bindTouch("spideeBtnPause", KEY.ESC);
+		bindTouch("spideeBtnRestart", KEY.ENTER);
+	};
+
+	createTouchControls();
+
 	document.addEventListener("keydown", function(e) {
 		handleUserInteraction();
 		var keyCode = e.keyCode || e.which;
