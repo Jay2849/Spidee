@@ -221,7 +221,6 @@ SpidermanGame.prototype.load = function() {
 		container.innerHTML = 
 			'<div class="touch-overlay-left">' +
 				'<button class="touch-btn touch-btn-nav" id="spideeBtnLeft" aria-label="Move Left">◀</button>' +
-				'<button class="touch-btn touch-btn-nav" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
 				'<button class="touch-btn touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
 			'</div>' +
 			'<div class="touch-overlay-top">' +
@@ -229,6 +228,7 @@ SpidermanGame.prototype.load = function() {
 				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄</button>' +
 			'</div>' +
 			'<div class="touch-overlay-right">' +
+				'<button class="touch-btn touch-btn-nav touch-btn-forward" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
 				'<button class="touch-btn touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️<br>SHOOT</button>' +
 			'</div>';
 

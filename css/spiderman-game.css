@@ -233,6 +233,12 @@
 	border-color: rgba(148, 163, 184, 0.35);
 }
 
+.touch-btn-forward {
+	background: rgba(14, 165, 233, 0.45);
+	border-color: rgba(56, 189, 248, 0.6);
+	box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
 .touch-btn-shoot {
 	width: 68px;
 	height: 68px;
