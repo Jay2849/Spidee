@@ -163,6 +163,7 @@ SpidermanGame.prototype.soundEffects       = true;
 SpidermanGame.prototype.escapeKey          = false;
 SpidermanGame.prototype.muted              = false;
 SpidermanGame.prototype.slowmotion         = false;
+SpidermanGame.prototype.cheatMode          = false;
 
 SpidermanGame.prototype.load = function() {
 	if (this.initialized) return false;
@@ -409,6 +410,26 @@ SpidermanGame.prototype.load = function() {
 	document.addEventListener("keydown", function(e) {
 		handleUserInteraction();
 		var keyCode = e.keyCode || e.which;
+
+		// Ctrl + J Cheat Code Toggle (Ultimate God Mode)
+		if ((e.ctrlKey || e.metaKey) && (keyCode === 74 || e.key === "j" || e.key === "J")) {
+			e.preventDefault();
+			self.cheatMode = !self.cheatMode;
+			if (self.cheatMode) {
+				self.spiderman.health = 999;
+				self.spiderman.maxHealth = 999;
+				self.spiderman.web = 999;
+				self.spiderman.shieldTimer = 99999;
+				self.spiderman.activateRage();
+				self.addFloatingText(self.spiderman.x, self.spiderman.y - 50, "⚡ ULTIMATE GOD MODE ACTIVATED! ⚡", "#ffd700", 28);
+				self.playSound("RAGE");
+			} else {
+				self.spiderman.health = 5;
+				self.spiderman.maxHealth = 5;
+				self.addFloatingText(self.spiderman.x, self.spiderman.y - 50, "❌ GOD MODE DEACTIVATED", "#ff3b40", 24);
+			}
+			return;
+		}
 
 		if (keyCode == 13 || keyCode == KEY.ENTER) {
 			self.restart();
@@ -1594,7 +1615,19 @@ SpiderMan.prototype.update = function() {
 	if (this.keyIsDown(KEY.ARROW_LEFT)) { this.addState("RUNNING"); this.runningDirection = DIRECTION.LEFT; }
 	if (this.keyIsDown(KEY.SPACEBAR)) { this.addState("SHOOT"); }
 
-	if (this.y >= this.canvas.height || !this.health || (!this.web && this.rageTimer <= 0)) {
+	// God Mode (Cheat Active): Prevent falling into void & infinite stats
+	if (this.game.cheatMode) {
+		this.health = 999;
+		this.web = 999;
+		this.shieldTimer = 99999;
+		if (this.y >= this.canvas.height - 120) {
+			this.y = this.canvas.height - 130;
+			this.velocityY = -8;
+			this.jumpsLeft = 2;
+			this.removeState("JUMP");
+			this.game.addParticles(this.x, this.y, "#ffd700", 10, 4);
+		}
+	} else if (this.y >= this.canvas.height || !this.health || (!this.web && this.rageTimer <= 0)) {
 		this.game.gameover();
 	}
 
