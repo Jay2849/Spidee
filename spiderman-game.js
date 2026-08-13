@@ -88,11 +88,11 @@ var DIRECTION = {
 
 function getDefaultBossMilestones() {
 	return [
-		{ score: 500,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
-		{ score: 1200, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-		{ score: 2200, type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
-		{ score: 3500, type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-		{ score: 5500, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+		{ score: 250,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
+		{ score: 600,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+		{ score: 1100, type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
+		{ score: 1750, type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+		{ score: 2750, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
 	];
 }
 
@@ -214,18 +214,34 @@ SpidermanGame.prototype.load = function() {
 	this.pauseMenu = pauseMenu;
 
 	var gameoverMenu = document.createElement("div");
+	gameoverMenu.className = "spiderman-game-overlay-backdrop";
 	gameoverMenu.style.display = "none";
 	gameoverMenu.innerHTML = 
-	'<div class="spiderman-game-menu-container">' +
-		'<div class="spiderman-game-menu-title">GAME OVER</div>' +
-		'<div class="spiderman-game-menu-title">FINAL SCORE: <span class="spiderman-game-score">0</span></div>' +
-		'<div class="spiderman-game-menu-title highscore-highlight">BEST RECORD: <span class="spiderman-game-highscore">0</span></div>' +
-		'<div class="spiderman-game-menu-button spiderman-game-menu-button-restart">RESTART [ENTER]</div>' +
+	'<div class="spiderman-game-menu-container spiderman-game-menu-active">' +
+		'<div class="spiderman-game-menu-title" style="color: #ff3b40; font-size: 32px; text-shadow: 0 0 15px rgba(255, 59, 64, 0.8);">☠️ GAME OVER ☠️</div>' +
+		'<div class="spiderman-game-menu-title" style="font-size: 20px;">YOUR POINTS: <span class="spiderman-game-score" style="color: #ffd700; font-size: 24px; font-weight: bold;">0</span></div>' +
+		'<div class="spiderman-game-menu-title highscore-highlight">BEST RECORD: <span class="spiderman-game-highscore" style="color: #00f0ff;">0</span></div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-restart" style="margin-top: 15px;">🔄 PLAY AGAIN [ENTER]</div>' +
 	'</div>';
 	var btnRestart = gameoverMenu.querySelector(".spiderman-game-menu-button-restart");
 	if (btnRestart) btnRestart.onclick = function() { self.restart(); };
 	document.body.appendChild(gameoverMenu);
 	this.gameoverMenu = gameoverMenu;
+
+	var victoryMenu = document.createElement("div");
+	victoryMenu.className = "spiderman-game-overlay-backdrop";
+	victoryMenu.style.display = "none";
+	victoryMenu.innerHTML = 
+	'<div class="spiderman-game-menu-container spiderman-game-menu-active" style="border-color: #ffd700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.85);">' +
+		'<div class="spiderman-game-menu-title" style="color: #ffd700; font-size: 26px; text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);">🏆 VICTORY! YOU SAVED THE CITY! 🏆</div>' +
+		'<div class="spiderman-game-menu-title" style="font-size: 20px; color: #ffffff;">FINAL CHAMPION SCORE: <span class="spiderman-game-victory-score" style="color: #00f0ff; font-size: 24px; font-weight: bold;">0</span></div>' +
+		'<div class="spiderman-game-menu-title highscore-highlight">BEST RECORD: <span class="spiderman-game-highscore" style="color: #ffd700;">0</span></div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-victory-restart" style="background: rgba(16, 185, 129, 0.9); border-color: #10b981; color: #ffffff; margin-top: 15px;">🚀 RESTART NEW GAME [ENTER]</div>' +
+	'</div>';
+	var btnVictoryRestart = victoryMenu.querySelector(".spiderman-game-menu-button-victory-restart");
+	if (btnVictoryRestart) btnVictoryRestart.onclick = function() { self.restart(); };
+	document.body.appendChild(victoryMenu);
+	this.victoryMenu = victoryMenu;
 
 	this.spiderman = new SpiderMan(this);
 	this.scene.spiderman = this.spiderman;
@@ -794,6 +810,24 @@ SpidermanGame.prototype.playSound = function(type) {
 				osc.stop(now + index * 0.12 + 0.18);
 			});
 		} catch (e) {}
+	} else if (type === "VICTORY") {
+		if (!ctx) return;
+		try {
+			var now = ctx.currentTime;
+			var notes = [523.25, 659.25, 783.99, 1046.50]; // Victory Fanfare C5, E5, G5, C6!
+			notes.forEach(function(freq, index) {
+				var osc = ctx.createOscillator();
+				var gain = ctx.createGain();
+				osc.type = "triangle";
+				osc.frequency.setValueAtTime(freq, now + index * 0.14);
+				gain.gain.setValueAtTime(0.4, now + index * 0.14);
+				gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.14 + 0.35);
+				osc.connect(gain);
+				gain.connect(ctx.destination);
+				osc.start(now + index * 0.14);
+				osc.stop(now + index * 0.14 + 0.35);
+			});
+		} catch (e) {}
 	}
 };
 
@@ -1134,6 +1168,7 @@ SpidermanGame.prototype.restart = function() {
 	this.gameIsOver = false;
 
 	this.gameoverMenu.style.display = "none";
+	if (this.victoryMenu) this.victoryMenu.style.display = "none";
 	this.pauseMenu.style.display = "none";
 
 	this.update();
@@ -1145,6 +1180,12 @@ SpidermanGame.prototype.gameover = function() {
 	this.showGameoverMenu();
 };
 
+SpidermanGame.prototype.triggerVictory = function() {
+	this.gameIsOver = true;
+	this.playSound("VICTORY");
+	this.showVictoryMenu();
+};
+
 SpidermanGame.prototype.showPauseMenu = function() {
 	this.paused = true;
 	this.pauseMenu.style.display = "block";
@@ -1152,11 +1193,28 @@ SpidermanGame.prototype.showPauseMenu = function() {
 
 SpidermanGame.prototype.showGameoverMenu = function() {
 	if (!this.gameoverMenu) return;
+	if (this.score > this.highScore) {
+		this.highScore = this.score;
+		try { localStorage.setItem("spidee_highscore", this.highScore.toString()); } catch(e){}
+	}
 	var scoreEl = this.gameoverMenu.querySelector(".spiderman-game-score");
 	if (scoreEl) scoreEl.innerHTML = this.score;
 	var highscoreEl = this.gameoverMenu.querySelector(".spiderman-game-highscore");
 	if (highscoreEl) highscoreEl.innerHTML = this.highScore;
-	this.gameoverMenu.style.display = "block";
+	this.gameoverMenu.style.display = "flex";
+};
+
+SpidermanGame.prototype.showVictoryMenu = function() {
+	if (!this.victoryMenu) return;
+	if (this.score > this.highScore) {
+		this.highScore = this.score;
+		try { localStorage.setItem("spidee_highscore", this.highScore.toString()); } catch(e){}
+	}
+	var scoreEl = this.victoryMenu.querySelector(".spiderman-game-victory-score");
+	if (scoreEl) scoreEl.innerHTML = this.score;
+	var highscoreEl = this.victoryMenu.querySelector(".spiderman-game-highscore");
+	if (highscoreEl) highscoreEl.innerHTML = this.highScore;
+	this.victoryMenu.style.display = "flex";
 };
 
 SpidermanGame.prototype.pause = function() { this.showPauseMenu(); };
@@ -2143,20 +2201,15 @@ BossEnemy.prototype.remove = function() {
 	this.game.slowmoTimer = 90;
 	this.game.spiderman.health = Math.min(this.game.spiderman.maxHealth, this.game.spiderman.health + 2);
 	this.game.spiderman.web = Math.max(this.game.spiderman.web, 40);
-	this.game.addParticles(this.x, this.y, this.color, 30, 7);
-	this.game.addFloatingText(this.x, this.y - 40, "☠️ " + this.displayName + " DEFEATED! +" + bonusPoints + " PTS", "#ffd700", 24);
+	this.game.addParticles(this.x, this.y, this.color, 35, 8);
+	this.game.addFloatingText(this.x, this.y - 40, "☠️ " + this.displayName + " DEFEATED! +" + bonusPoints + " PTS", "#ffd700", 26);
 	this.game.bossActive = false;
 
-	// Loop Boss Rush sequence continuously with scaling score targets
-	if (this.game.bossMilestones.length === 0) {
-		var current = this.game.score;
-		this.game.bossMilestones = [
-			{ score: current + 150, type: "GOBLIN",          name: "GREEN GOBLIN",   health: 6, color: "#f97316" },
-			{ score: current + 350, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-			{ score: current + 650, type: "SANDMAN",         name: "SANDMAN",        health: 7, color: "#eab308" },
-			{ score: current + 1050, type: "MYSTERIO",       name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-			{ score: current + 1550, type: "VENOM_ORIGINAL", name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
-		];
+	// Defeating Venom Ultimate completes the game with VICTORY!
+	if (this.type === "VENOM_ORIGINAL") {
+		this.game.removeEnemy(this);
+		this.game.triggerVictory();
+		return;
 	}
 
 	this.game.playSound("ENEMY_DEFEAT");

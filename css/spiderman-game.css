@@ -17,17 +17,32 @@
     cursor: default;
 }
 
+.spiderman-game-overlay-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(5, 8, 18, 0.82);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .spiderman-game-menu-container {
 	position: absolute;
 	display: none;
 	height: auto;
 	min-width: 320px;
 	padding: 25px 35px;
-	background: rgba(10, 14, 26, 0.88);
+	background: rgba(10, 14, 26, 0.92);
 	backdrop-filter: blur(10px);
 	border: 2px solid #e62429;
-	border-radius: 12px;
-	box-shadow: 0 0 25px rgba(230, 36, 41, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.9);
+	border-radius: 16px;
+	box-shadow: 0 0 35px rgba(230, 36, 41, 0.6), inset 0 0 15px rgba(0, 0, 0, 0.9);
 	top: 50%;
 	left: 50%;
 	-webkit-transform: translate(-50%, -50%);
@@ -36,6 +51,14 @@
 	-o-transform: translate(-50%, -50%);
 	transform: translate(-50%, -50%);
 	z-index: 100;
+}
+
+.spiderman-game-menu-container.spiderman-game-menu-active {
+	display: block !important;
+	position: relative !important;
+	top: auto !important;
+	left: auto !important;
+	transform: none !important;
 }
 
 .spiderman-game-menu-title {
