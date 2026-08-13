@@ -1328,7 +1328,8 @@ function SpiderMan(game) {
 	this.maxFallSpeed = 11;
 
 	this.runningDirection = 0;
-	this.runningSpeed = 4.2;
+	this.runningSpeed = 3.2;
+	this.shootCooldown = 0;
 
 	this.jumpsLeft = 2;
 	this.jumpKeyPressedPrevious = false;
@@ -1436,7 +1437,10 @@ SpiderMan.prototype.keyup = function(keyCode) {
 };
 
 SpiderMan.prototype.shoot = function(img) {
+	if (this.shootCooldown > 0) return;
 	if (this.web <= 0 && this.rageTimer <= 0) return;
+
+	this.shootCooldown = (this.rageTimer > 0) ? 12 : 28; // ~0.46s delay between web shots
 
 	this.game.playSound("WEB_SHOOT");
 
@@ -1583,6 +1587,8 @@ SpiderMan.prototype.update = function() {
 		this.x += this.velocityX;
 	}
 	this.jumpKeyPressedPrevious = jumpIsDown;
+
+	if (this.shootCooldown > 0) this.shootCooldown--;
 
 	if (this.keyIsDown(KEY.ARROW_RIGHT)) { this.addState("RUNNING"); this.runningDirection = DIRECTION.RIGHT; }
 	if (this.keyIsDown(KEY.ARROW_LEFT)) { this.addState("RUNNING"); this.runningDirection = DIRECTION.LEFT; }
