@@ -38,7 +38,13 @@ var RESOURCES = {
 	"SPIDER_HEAD"        : "images/spider-head.png",
 	"HEART"              : "images/heart.png",
 	"VENOM"              : "images/venom.png",
+	"VENOM_ORIGINAL"     : "images/venom-original.png",
 	"THUG"               : "images/thug.png",
+	"THUG_LIGHT"         : "images/thug-light.png",
+	"GOBLIN"             : "images/goblin.png",
+	"DOC_OCK"            : "images/doctor-octopus.png",
+	"SANDMAN"            : "images/sandman.png",
+	"MYSTERIO"           : "images/mysterio.png",
 	"KNIFE"              : "images/knife.png",
 };
 
@@ -109,13 +115,23 @@ function SpidermanGame(opts) {
 		this.highScore = 0;
 	}
 
+function getDefaultBossMilestones() {
+	return [
+		{ score: 15,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
+		{ score: 35,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+		{ score: 65,  type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
+		{ score: 95,  type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+		{ score: 135, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+	];
+}
+
 	this.weatherTimer = 0;
 	this.weatherState = "SUNSET"; // SUNSET, NIGHT, STORM
 	this.rainParticles = [];
 	this.lightningTimer = 0;
 	this.slowmoTimer = 0;
 	this.bossActive = false;
-	this.bossMilestones = [20, 50, 90, 140, 200];
+	this.bossMilestones = getDefaultBossMilestones();
 
 	this.scene = {
 		spiderman: null,
@@ -792,17 +808,28 @@ SpidermanGame.prototype.update = function(timestamp) {
 	this.drawDynamicEnvironment();
 	this.drawRoofs();
 
-	// Check Boss Spawn Milestones
+	// Check Boss Spawn Milestones (Green Goblin -> Doc Ock -> Sandman -> Mysterio -> Venom)
 	if (!this.bossActive && this.bossMilestones.length > 0) {
-		if (this.score >= this.bossMilestones[0]) {
-			this.bossMilestones.shift();
+		if (this.score >= this.bossMilestones[0].score) {
+			var milestone = this.bossMilestones.shift();
 			this.bossActive = true;
-			var boss = new VenomBoss(this, {
-				x: spiderman.x + 600,
-				y: 120
+
+			var roofs = this.scene.roofs;
+			var currentRoof = roofs[roofs.length - 1];
+			var spawnX = currentRoof ? (currentRoof.x + currentRoof.width - 80) : (spiderman.x + 500);
+			var groundY = currentRoof ? (currentRoof.y - 70) : 320;
+
+			var boss = new BossEnemy(this, {
+				x: spawnX,
+				y: groundY,
+				type: milestone.type,
+				name: milestone.name,
+				health: milestone.health,
+				color: milestone.color,
+				roof: currentRoof
 			});
 			this.addEnemy(boss);
-			this.addFloatingText(this.canvas.width / 2 + this.cameraX, 100, "⚠️ WARNING! VENOM APPROACHES! ⚠️", "#ff0055", 28);
+			this.addFloatingText(this.canvas.width / 2 + this.cameraX, 100, "⚠️ WARNING! " + milestone.name + " APPROACHES! ⚠️", milestone.color, 26);
 		}
 	}
 
@@ -1045,7 +1072,7 @@ SpidermanGame.prototype.restart = function() {
 	this.cameraX = 0;
 	this.score = 0;
 	this.bossActive = false;
-	this.bossMilestones = [20, 50, 90, 140, 200];
+	this.bossMilestones = getDefaultBossMilestones();
 
 	this.paused = false;
 	this.gameIsOver = false;
@@ -1621,18 +1648,12 @@ function Roof(game, x, y) {
 
 	var shouldSpawnEnemy = Math.round(Math.random() * 100) >= 30;
 	if (shouldSpawnEnemy) {
-		var enemy = new Enemy(this.game, { x: this.x + this.width / 2 });
+		var enemyType = Math.random() < 0.5 ? "THUG" : "THUG_LIGHT";
+		var enemy = new Enemy(this.game, { x: this.x + this.width / 2, name: enemyType });
 		enemy.y = this.y - 1 - (enemy.stateImg ? enemy.stateImg.height * enemy.scale : 50);
 		enemy.roof = this;
 		this.game.addEnemy(enemy);
 		this.enemy = enemy;
-	}
-
-	var shouldSpawnDrone = Math.round(Math.random() * 100) >= 50;
-	if (shouldSpawnDrone) {
-		var drone = new FlyingDrone(this.game, { x: this.x + this.width + 40, y: Math.random() * 120 + 120 });
-		this.game.addEnemy(drone);
-		this.drone = drone;
 	}
 
 	var shouldSpawnItem = Math.round(Math.random() * 100) >= 35;
@@ -1660,7 +1681,6 @@ Roof.prototype.update = function() {
 	if (renderX + this.width <= -200) {
 		this.game.removeRoof(this);
 		if (this.enemy) this.game.removeEnemy(this.enemy);
-		if (this.drone) this.game.removeEnemy(this.drone);
 	}
 };
 
@@ -1830,140 +1850,41 @@ Enemy.prototype.handleHitWithProjectile = function(projectile) {
 	}
 };
 
-// Flying Drone Class
-function FlyingDrone(game, opts) {
-	opts = opts || {};
-	this.game = game;
-	this.canvas = game.canvas;
-	this.ctx = game.ctx;
-	this.x = opts.x || 0;
-	this.y = opts.y || 150;
-	this.health = 2;
-	this.maxHealth = 2;
-	this.name = "DRONE";
-	this.scale = 0.5;
-	this.hover = 0;
-	this.frame = 0;
-}
-
-FlyingDrone.prototype.shoot = function() {
-	var projectile = new Projectile(this.game);
-	projectile.name = "LASER";
-	projectile.damage = 1;
-	projectile.x = this.x;
-	projectile.y = this.y + 10;
-	projectile.update = function() {
-		var renderX = this.x - this.game.cameraX;
-		this.ctx.fillStyle = "#ff0055";
-		this.ctx.shadowBlur = 8;
-		this.ctx.shadowColor = "#ff0055";
-		this.ctx.fillRect(renderX, this.y, 14, 4);
-		this.ctx.shadowBlur = 0;
-		this.x -= 6;
-	};
-	this.game.playSound("ENEMY_SHOOT");
-	this.game.addProjectile(projectile);
-};
-
-FlyingDrone.prototype.update = function() {
-	if (this.health <= 0) { this.remove(); return; }
-	this.hover += 0.05;
-	var renderX = this.x - this.game.cameraX;
-	var renderY = this.y + Math.sin(this.hover) * 12;
-
-	this.ctx.save();
-	this.ctx.shadowBlur = 10;
-	this.ctx.shadowColor = "#ff0055";
-	this.ctx.fillStyle = "#1e293b";
-	this.ctx.strokeStyle = "#ff0055";
-	this.ctx.lineWidth = 2;
-	this.ctx.beginPath();
-	this.ctx.arc(renderX, renderY, 15, 0, Math.PI * 2);
-	this.ctx.fill();
-	this.ctx.stroke();
-	this.ctx.fillStyle = "#ff0055";
-	this.ctx.beginPath();
-	this.ctx.arc(renderX, renderY, 6, 0, Math.PI * 2);
-	this.ctx.fill();
-	this.ctx.restore();
-
-	var isInScreen = renderX <= this.canvas.width;
-	if (this.frame % 130 === 0 && isInScreen) this.shoot();
-	this.frame++;
-};
-
-FlyingDrone.prototype.remove = function() {
-	this.game.score += 2;
-	this.game.spiderman.web += 5;
-	this.game.spiderman.rageMeter = Math.min(100, this.game.spiderman.rageMeter + 15);
-	this.game.registerKill(this.x, this.y);
-	this.game.addParticles(this.x, this.y, "#ff0055", 16, 5);
-	this.game.playSound("ENEMY_DEFEAT");
-	this.game.removeEnemy(this);
-};
-
-FlyingDrone.prototype.handleHitWithProjectile = function(projectile) {
-	if (projectile.name === "WEB") {
-		this.health -= projectile.damage;
-		this.game.addParticles(this.x, this.y, "#00f0ff", 8, 3);
-		this.game.playSound("HIT_ENEMY");
-	}
-};
-
-// Retro Pixel Art Venom Matrix (matching uploaded artwork with bright purple borders & chest cross emblem)
-var VENOM_PIXEL_SPRITE = [
-	".......PPPPPPP.......",
-	".....PPBBBBBBBP......",
-	"....PBBBBBBBBBBB.....",
-	"...PBBBBBBBBBBBBB....",
-	"..PBBBPWWWWPWWWWP....",
-	"..PBBBPWWWWPWWWWP....",
-	"..PBBBPWWWWPWWWWP....",
-	"..PBBBPWWWWPWWWWP....",
-	"...PBBBBPBBBBBBP.....",
-	"...PBBBBBBBBBBBP.....",
-	".PPBBBBBBBBBBBBBP...",
-	"PBBBBBBBBBBBBBBBBB..",
-	"PBBBBBBBPBBBBBBBBBP.",
-	"PBBBBBBPPPBBPBBBBBP.",
-	"PBBBBBBBPBBBBBBBBBP.",
-	"PBBBBBBBBBBBBBBBBBP.",
-	"PBBBBBBBBBBBBBBBBBP.",
-	".PPBBBBBPPPPBBBBBP..",
-	"..PBBBBB...PBBBBBP..",
-	"..PBBBBB...PBBBBBP..",
-	"PPPPPPPP...PPPPPPPPP"
-];
-
-function VenomBoss(game, opts) {
+// Boss Enemy Class (Handles Green Goblin, Doc Ock, Sandman, Mysterio & Venom Ultimate Boss on Ground Level)
+function BossEnemy(game, opts) {
 	opts = opts || {};
 	this.game = game;
 	this.canvas = game.canvas;
 	this.ctx = game.ctx;
 	this.x = opts.x || 800;
-	this.y = opts.y || 120;
-	this.health = 8;
-	this.maxHealth = 8;
-	this.name = "VENOM";
-	this.scale = 0.65;
+	this.y = opts.y || 250;
+	this.type = opts.type || "GOBLIN";
+	this.displayName = opts.name || "BOSS";
+	this.health = opts.health || 5;
+	this.maxHealth = this.health;
+	this.name = this.type;
+	this.scale = (this.type === "VENOM_ORIGINAL" || this.type === "VENOM") ? 0.65 : 0.55;
+	this.color = opts.color || "#ff0055";
 	this.frame = 0;
 	this.facing = -1;
 	this.wasDamagedOnPreviousFrame = false;
-	this.spriteWidth = VENOM_PIXEL_SPRITE[0].length * 3.2;
-	this.spriteHeight = VENOM_PIXEL_SPRITE.length * 3.2;
+	this.roof = opts.roof || null;
 }
 
-VenomBoss.prototype.shoot = function() {
+BossEnemy.prototype.shoot = function() {
 	var self = this;
 	var projectile = new Projectile(this.game);
-	projectile.name = "SYMBIOTE";
+	projectile.name = self.type + "_PROJECTILE";
 	projectile.damage = 1;
 
-	var width = this.spriteWidth;
-	var height = this.spriteHeight;
+	var img = this.game.resources[this.type];
+	var width = (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") ? 
+		(VENOM_PIXEL_SPRITE[0].length * 3.2) : (img ? img.width * this.scale : 50);
+	var height = (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") ? 
+		(VENOM_PIXEL_SPRITE.length * 3.2) : (img ? img.height * this.scale : 70);
 
 	projectile.x = (this.facing === 1) ? (this.x + width) : (this.x - 10);
-	projectile.y = this.y + height / 2;
+	projectile.y = this.y + height / 2 - 5;
 
 	var spiderman = self.game.spiderman;
 	var targetX = spiderman ? (spiderman.x + 20) : (this.x - 100);
@@ -1982,15 +1903,12 @@ VenomBoss.prototype.shoot = function() {
 
 		var renderX = this.x - this.game.cameraX;
 		this.ctx.save();
-		this.ctx.fillStyle = "#000000";
-		this.ctx.strokeStyle = "#a855f7";
-		this.ctx.lineWidth = 2;
+		this.ctx.fillStyle = self.color;
 		this.ctx.shadowBlur = 10;
-		this.ctx.shadowColor = "#a855f7";
+		this.ctx.shadowColor = self.color;
 		this.ctx.beginPath();
 		this.ctx.arc(renderX, this.y, 7, 0, Math.PI * 2);
 		this.ctx.fill();
-		this.ctx.stroke();
 		this.ctx.restore();
 
 		if (renderX < -100 || renderX > this.canvas.width + 100 || this.y < -100 || this.y > this.canvas.height + 100) {
@@ -2001,12 +1919,14 @@ VenomBoss.prototype.shoot = function() {
 	this.game.addProjectile(projectile);
 };
 
-VenomBoss.prototype.drawHealthbar = function() {
-	var healthbar = { height: 8, width: 140, style: "#a855f7", borderWidth: 2, borderStyle: "#000" };
-	var width = this.spriteWidth;
+BossEnemy.prototype.drawHealthbar = function() {
+	var healthbar = { height: 8, width: 140, style: this.color, borderWidth: 2, borderStyle: "#000" };
+	var img = this.game.resources[this.type];
+	var width = (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") ? 
+		(VENOM_PIXEL_SPRITE[0].length * 3.2) : (img ? img.width * this.scale : 50);
 	var x = this.x - this.game.cameraX - healthbar.width / 2 + width / 2;
-	var y = this.y - 20;
-	var fillW = healthbar.width * this.health / this.maxHealth;
+	var y = this.y - 22;
+	var fillW = healthbar.width * Math.max(0, this.health) / this.maxHealth;
 
 	this.ctx.fillStyle = healthbar.borderStyle;
 	this.ctx.fillRect(x - healthbar.borderWidth, y - healthbar.borderWidth, healthbar.width + healthbar.borderWidth * 2, healthbar.height + healthbar.borderWidth * 2);
@@ -2016,17 +1936,28 @@ VenomBoss.prototype.drawHealthbar = function() {
 	this.ctx.fillStyle = "#ffffff";
 	this.ctx.font = "bold 12px Helvetica";
 	this.ctx.textAlign = "center";
-	this.ctx.fillText("VENOM BOSS", x + healthbar.width / 2, y - 4);
+	this.ctx.fillText(this.displayName, x + healthbar.width / 2, y - 4);
 };
 
-VenomBoss.prototype.update = function() {
+BossEnemy.prototype.update = function() {
 	if (this.health <= 0) { this.remove(); return; }
+
+	var img = this.game.resources[this.type];
+	this.stateImg = img;
 
 	var spiderman = this.game.spiderman;
 	var renderX = this.x - this.game.cameraX;
 	var renderY = this.y;
-	var width = this.spriteWidth;
-	var height = this.spriteHeight;
+	var width = (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") ? 
+		(VENOM_PIXEL_SPRITE[0].length * 3.2) : (img ? img.width * this.scale : 50);
+	var height = (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") ? 
+		(VENOM_PIXEL_SPRITE.length * 3.2) : (img ? img.height * this.scale : 70);
+
+	// Stand directly on rooftop ground level
+	if (this.roof) {
+		this.y = this.roof.y - height;
+		renderY = this.y;
+	}
 
 	if (spiderman) {
 		this.facing = (spiderman.x + 20 < this.x + width / 2) ? -1 : 1;
@@ -2034,71 +1965,92 @@ VenomBoss.prototype.update = function() {
 
 	this.drawHealthbar();
 
-	// Render Exact Pixel Art Venom Sprite from Uploaded Image with Bright Purple Outlines & Chest Cross
 	var ctx = this.ctx;
-	var sprite = VENOM_PIXEL_SPRITE;
-	var rows = sprite.length;
-	var cols = sprite[0].length;
-	var pSize = 3.2;
 
-	ctx.save();
-	ctx.translate(renderX, renderY);
+	if (this.type === "VENOM_ORIGINAL" && typeof VENOM_PIXEL_SPRITE !== "undefined") {
+		// Render Pixel Art Venom Ultimate Boss
+		var sprite = VENOM_PIXEL_SPRITE;
+		var rows = sprite.length;
+		var cols = sprite[0].length;
+		var pSize = 3.2;
 
-	if (this.facing === -1) {
-		ctx.scale(-1, 1);
-		ctx.translate(-width, 0);
-	}
+		ctx.save();
+		ctx.translate(renderX, renderY);
 
-	// Electric Purple Glow for boundary outline
-	ctx.shadowBlur = 12;
-	ctx.shadowColor = "#a855f7";
-
-	for (var r = 0; r < rows; r++) {
-		for (var c = 0; c < cols; c++) {
-			var char = sprite[r][c];
-			if (char === ".") continue;
-
-			if (char === "P") {
-				ctx.fillStyle = "#a855f7"; // Bright Vibrant Electric Purple
-			} else if (char === "B") {
-				ctx.fillStyle = "#050508"; // Pitch Black
-			} else if (char === "W") {
-				ctx.fillStyle = "#ffffff"; // Pure White Eyes
-			}
-
-			ctx.fillRect(c * pSize, r * pSize, pSize, pSize);
+		if (this.facing === -1) {
+			ctx.scale(-1, 1);
+			ctx.translate(-width, 0);
 		}
+
+		ctx.shadowBlur = 12;
+		ctx.shadowColor = "#a855f7";
+
+		for (var r = 0; r < rows; r++) {
+			for (var c = 0; c < cols; c++) {
+				var char = sprite[r][c];
+				if (char === ".") continue;
+
+				if (char === "P") {
+					ctx.fillStyle = "#a855f7";
+				} else if (char === "B") {
+					ctx.fillStyle = "#050508";
+				} else if (char === "W") {
+					ctx.fillStyle = "#ffffff";
+				}
+
+				ctx.fillRect(c * pSize, r * pSize, pSize, pSize);
+			}
+		}
+		ctx.restore();
+	} else {
+		// Render Villain Sprite (Goblin, Doc Ock, Sandman, Mysterio) with facing direction
+		ctx.save();
+		var renderX_final = renderX;
+		if (this.facing === -1) {
+			ctx.scale(-1, 1);
+			renderX_final = (renderX + width) * -1;
+		}
+
+		ctx.shadowBlur = 12;
+		ctx.shadowColor = this.color;
+
+		if (img) {
+			ctx.drawImage(img, renderX_final, renderY, width, height);
+		} else {
+			ctx.fillStyle = this.color;
+			ctx.fillRect(renderX_final, renderY, width, height);
+		}
+		ctx.restore();
 	}
-	ctx.restore();
 
 	if (this.wasDamagedOnPreviousFrame) {
 		this.wasDamagedOnPreviousFrame = false;
-		ctx.fillStyle = "rgba(168, 85, 247, 0.45)";
+		ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
 		ctx.fillRect(renderX, renderY, width, height);
 	}
 
-	var isInScreen = renderX <= this.canvas.width + 100;
-	if (this.frame % 110 === 0 && isInScreen) this.shoot();
+	var isInScreen = (renderX <= this.canvas.width + 100);
+	if (this.frame % 115 === 0 && isInScreen) this.shoot();
 	this.frame++;
 };
 
-VenomBoss.prototype.remove = function() {
-	this.game.score += 100;
-	this.game.slowmoTimer = 120; // Slowmo camera finish
-	this.game.spiderman.health = this.game.spiderman.maxHealth;
-	this.game.spiderman.web = 50;
-	this.game.addParticles(this.x, this.y, "#a855f7", 35, 8);
-	this.game.addFloatingText(this.x, this.y - 40, "☠️ VENOM DEFEATED! +100 PTS", "#a855f7", 26);
+BossEnemy.prototype.remove = function() {
+	this.game.score += 50;
+	this.game.slowmoTimer = 90;
+	this.game.spiderman.health = Math.min(this.game.spiderman.maxHealth, this.game.spiderman.health + 2);
+	this.game.spiderman.web = Math.max(this.game.spiderman.web, 40);
+	this.game.addParticles(this.x, this.y, this.color, 30, 7);
+	this.game.addFloatingText(this.x, this.y - 40, "☠️ " + this.displayName + " DEFEATED!", "#ffd700", 24);
 	this.game.bossActive = false;
 	this.game.playSound("ENEMY_DEFEAT");
 	this.game.removeEnemy(this);
 };
 
-VenomBoss.prototype.handleHitWithProjectile = function(projectile) {
+BossEnemy.prototype.handleHitWithProjectile = function(projectile) {
 	if (projectile.name === "WEB") {
 		this.health -= projectile.damage;
 		this.wasDamagedOnPreviousFrame = true;
-		this.game.addParticles(this.x, this.y, "#a855f7", 10, 4);
+		this.game.addParticles(this.x, this.y, this.color, 10, 4);
 		this.game.playSound("HIT_ENEMY");
 	}
 };
@@ -2107,8 +2059,7 @@ window.SpidermanGame = SpidermanGame;
 window.Projectile    = Projectile;
 window.SpiderMan     = SpiderMan;
 window.Enemy         = Enemy;
-window.FlyingDrone   = FlyingDrone;
-window.VenomBoss     = VenomBoss;
+window.BossEnemy     = BossEnemy;
 window.PowerUp       = PowerUp;
 window.Roof          = Roof;
 
