@@ -168,15 +168,21 @@ SpidermanGame.prototype.load = function() {
 	if (this.initialized) return false;
 	var self = this;
 
+	var findCanvas = function() {
+		return document.getElementById("canvas") || document.querySelector("#canvas") || document.querySelector("canvas");
+	};
+
 	if (typeof this.canvas === "string") {
-		this.canvas = document.querySelector(this.canvas);
+		this.canvas = findCanvas();
 	}
 	if (!this.canvas) {
-		this.canvas = document.getElementById("canvas") || document.querySelector("canvas");
+		this.canvas = findCanvas();
 	}
 	if (!this.canvas) {
 		this.canvas = document.createElement("canvas");
-		document.body.appendChild(this.canvas);
+		this.canvas.id = "canvas";
+		var container = document.getElementById("canvasContainer") || document.body;
+		container.appendChild(this.canvas);
 	}
 	this.ctx = this.canvas.getContext("2d");
 	this.canvas.height = 500;

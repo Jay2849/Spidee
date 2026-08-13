@@ -40,6 +40,7 @@
 	.canvas-container {
 		position: relative;
 		width: 100%;
+		min-height: 260px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -94,10 +95,12 @@
 	#canvas {
 		width: 100% !important;
 		height: auto !important;
+		aspect-ratio: 1111 / 500;
 		max-height: 65vh;
 		border-radius: 8px;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(230, 36, 41, 0.2);
 		touch-action: none;
+		background: #0a0e1a;
 	}
 
 	@media (max-width: 768px) {
@@ -150,17 +153,24 @@
 			<span class="action">Restart</span>
 		</div>
 		<div class="canvas-container" id="canvasContainer">
-			<canvas id="canvas"></canvas>
+			<canvas id="canvas" width="1111" height="500"></canvas>
 		</div>
 	</div>
 </body>
-<script type="text/javascript" src="spiderman-game.js?v=2.2"></script>
+<script type="text/javascript" src="spiderman-game.js?v=3.0"></script>
 <script type="text/javascript">
+function initSpideeGame() {
+	var game = new SpidermanGame({
+		canvas: "#canvas"
+	});
+	game.load();
+	window.spideeGame = game;
+}
 
-var game = new SpidermanGame({
-	canvas: "#canvas"
-});
-game.load();
-
+if (document.readyState === "complete" || document.readyState === "interactive") {
+	initSpideeGame();
+} else {
+	window.addEventListener("DOMContentLoaded", initSpideeGame);
+}
 </script>
 </html>
