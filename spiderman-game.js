@@ -441,7 +441,10 @@ SpidermanGame.prototype.load = function() {
 					self.resources[resource.name] = img;
 					resolve(img);
 				};
-				img.onerror = function() { resolve(null); };
+				img.onerror = function() {
+					self.resources[resource.name] = img;
+					resolve(img);
+				};
 				img.src = resource.source;
 			});
 		});
@@ -1046,11 +1049,15 @@ SpidermanGame.prototype.isCharacterAtPoint = function(x, y) {
 
 	for (var i = 0; i < characters.length; i++) {
 		var character = characters[i];
+		if (!character) continue;
 		var stateImg = character.stateImg || {};
+		var scale = character.scale || 0.5;
 		var left = character.x - this.cameraX;
 		var top = character.y;
-		var right = left + (stateImg.width ? stateImg.width * character.scale : 45);
-		var bottom = top + (stateImg.height ? stateImg.height * character.scale : 65);
+		var width = (typeof character.spriteWidth === "number") ? character.spriteWidth : (stateImg.width ? stateImg.width * scale : 45);
+		var height = (typeof character.spriteHeight === "number") ? character.spriteHeight : (stateImg.height ? stateImg.height * scale : 65);
+		var right = left + width;
+		var bottom = top + height;
 
 		if (left <= x && top <= y && right >= x && bottom >= y) return character;
 	}
@@ -2060,6 +2067,8 @@ window.Projectile    = Projectile;
 window.SpiderMan     = SpiderMan;
 window.Enemy         = Enemy;
 window.BossEnemy     = BossEnemy;
+window.FlyingDrone   = BossEnemy;
+window.VenomBoss     = BossEnemy;
 window.PowerUp       = PowerUp;
 window.Roof          = Roof;
 
