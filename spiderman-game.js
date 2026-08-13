@@ -168,7 +168,12 @@ SpidermanGame.prototype.load = function() {
 	if (this.initialized) return false;
 	var self = this;
 
-	this.canvas = document.querySelector(this.canvas);
+	if (typeof this.canvas === "string") {
+		this.canvas = document.querySelector(this.canvas);
+	}
+	if (!this.canvas) {
+		this.canvas = document.getElementById("canvas") || document.querySelector("canvas");
+	}
 	if (!this.canvas) {
 		this.canvas = document.createElement("canvas");
 		document.body.appendChild(this.canvas);
