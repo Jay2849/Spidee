@@ -781,11 +781,11 @@ SpidermanGame.prototype.update = function(timestamp) {
 	if (!this.lastFrameTime) this.lastFrameTime = timestamp;
 	var delta = timestamp - this.lastFrameTime;
 
-	// Slow motion camera handling (e.g. Boss kill)
-	var targetFPS = (this.slowmoTimer > 0) ? 35 : 15;
+	// Frame rate timing control (~60 FPS)
+	var minFrameInterval = (this.slowmoTimer > 0) ? 32 : 12;
 	if (this.slowmoTimer > 0) this.slowmoTimer--;
 
-	if (delta < targetFPS) {
+	if (delta < minFrameInterval) {
 		return;
 	}
 	this.lastFrameTime = timestamp - (delta % 16.666);
@@ -958,18 +958,20 @@ SpidermanGame.prototype.drawDynamicEnvironment = function() {
 
 	// Draw parallax background image if present
 	var background = this.resources.BACKGROUND;
-	if (background && background.width > 0 && background.height > 0) {
-		var ratio = background.width / background.height;
-		var bgWidth = h * ratio;
-		if (bgWidth > 0) {
-			var x = (this.cameraX / 5) * -1;
-			x %= bgWidth;
-			ctx.save();
-			ctx.globalAlpha = 0.45;
-			ctx.drawImage(background, x, 0, bgWidth, h);
-			ctx.drawImage(background, x + bgWidth, 0, bgWidth, h);
-			ctx.restore();
-		}
+	if (background && background.naturalWidth > 0 && background.naturalHeight > 0) {
+		try {
+			var ratio = background.naturalWidth / background.naturalHeight;
+			var bgWidth = h * ratio;
+			if (bgWidth > 0) {
+				var x = (this.cameraX / 5) * -1;
+				x %= bgWidth;
+				ctx.save();
+				ctx.globalAlpha = 0.45;
+				ctx.drawImage(background, x, 0, bgWidth, h);
+				ctx.drawImage(background, x + bgWidth, 0, bgWidth, h);
+				ctx.restore();
+			}
+		} catch (e) {}
 	}
 };
 
@@ -1591,8 +1593,6 @@ SpiderMan.prototype.update = function() {
 
 	var x = this.x - this.game.cameraX;
 	var y = this.y;
-	var width = img.width * this.scale;
-	var height = img.height * this.scale;
 
 	// Rage Mode Trail & Aura
 	if (this.rageTimer > 0) {
@@ -1688,9 +1688,24 @@ Roof.prototype.update = function() {
 	var renderX = this.x - this.game.cameraX;
 	var roof = this.game.resources.BUILDING;
 
-	if (roof) {
-		this.ctx.drawImage(roof, 0, 0, this.width, this.height, renderX, this.y, this.width, this.height);
-		this.ctx.drawImage(roof, this.width, 0, 15, 26, renderX + this.width, this.y, 15, 26);
+	if (roof && roof.naturalWidth > 0 && roof.naturalHeight > 0) {
+		try {
+			var sW = Math.min(roof.naturalWidth, this.width);
+			var sH = Math.min(roof.naturalHeight, this.height);
+			if (sW > 0 && sH > 0) {
+				this.ctx.drawImage(roof, 0, 0, sW, sH, renderX, this.y, this.width, this.height);
+				this.ctx.drawImage(roof, Math.min(roof.naturalWidth - 15, this.width), 0, Math.min(15, roof.naturalWidth), Math.min(26, roof.naturalHeight), renderX + this.width, this.y, 15, 26);
+			}
+		} catch (e) {
+			this.ctx.fillStyle = "#1e293b";
+			this.ctx.fillRect(renderX, this.y, this.width, this.height);
+		}
+	} else {
+		// Clean fallback roof rendering if building image is loading
+		this.ctx.fillStyle = "#1e293b";
+		this.ctx.fillRect(renderX, this.y, this.width, this.height);
+		this.ctx.fillStyle = "#334155";
+		this.ctx.fillRect(renderX, this.y, this.width, 10);
 	}
 
 	if (renderX + this.width <= -200) {
