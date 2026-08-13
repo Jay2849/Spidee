@@ -1623,6 +1623,7 @@ function Roof(game, x, y) {
 	if (shouldSpawnEnemy) {
 		var enemy = new Enemy(this.game, { x: this.x + this.width / 2 });
 		enemy.y = this.y - 1 - (enemy.stateImg ? enemy.stateImg.height * enemy.scale : 50);
+		enemy.roof = this;
 		this.game.addEnemy(enemy);
 		this.enemy = enemy;
 	}
@@ -1677,6 +1678,8 @@ function Enemy(game, opts) {
 	this.stateImg = this.game.resources[this.name];
 	this.wasDamagedOnPreviousFrame = false;
 	this.frame = 0;
+	this.facing = -1; // -1 = Left, 1 = Right
+	this.walkSpeed = 1.5;
 }
 
 Enemy.prototype.shoot = function() {
@@ -1685,12 +1688,53 @@ Enemy.prototype.shoot = function() {
 	var projectile = new Projectile(this.game);
 	projectile.name = "KNIFE";
 	projectile.damage = 1;
-	projectile.x = this.x - (knife ? knife.width * this.scale / 2 : 10);
-	projectile.y = this.y + (this.stateImg ? this.stateImg.height * this.scale / 2 : 20) - 5;
+
+	var imgWidth = this.stateImg ? this.stateImg.width * this.scale : 40;
+	var imgHeight = this.stateImg ? this.stateImg.height * this.scale : 60;
+
+	// Start knife position according to current facing direction
+	projectile.x = (this.facing === 1) ? (this.x + imgWidth) : (this.x - 10);
+	projectile.y = this.y + imgHeight / 2 - 5;
+
+	// Target Spider-Man's current center location
+	var spiderman = self.game.spiderman;
+	var targetX = spiderman ? (spiderman.x + 20) : (this.x - 100);
+	var targetY = spiderman ? (spiderman.y + 25) : (this.y + imgHeight / 2);
+	var dx = targetX - projectile.x;
+	var dy = targetY - projectile.y;
+	var angle = Math.atan2(dy, dx);
+	var speed = 7.5;
+
+	projectile.vx = Math.cos(angle) * speed;
+	projectile.vy = Math.sin(angle) * speed;
+	projectile.angle = angle;
+	projectile.spinAngle = 0;
+
 	projectile.update = function() {
-		if (knife) this.ctx.drawImage(knife, this.x - this.game.cameraX, this.y, knife.width * self.scale / 2, knife.height * self.scale / 2);
-		else { this.ctx.fillStyle = "red"; this.ctx.fillRect(this.x - this.game.cameraX, this.y, 10, 5); }
-		this.x -= 5;
+		this.x += this.vx;
+		this.y += this.vy;
+		this.spinAngle += 0.35;
+
+		var renderX = this.x - this.game.cameraX;
+		var renderY = this.y;
+
+		this.ctx.save();
+		this.ctx.translate(renderX, renderY);
+		this.ctx.rotate(this.spinAngle);
+
+		if (knife) {
+			var kw = knife.width * self.scale / 2;
+			var kh = knife.height * self.scale / 2;
+			this.ctx.drawImage(knife, -kw / 2, -kh / 2, kw, kh);
+		} else {
+			this.ctx.fillStyle = "red";
+			this.ctx.fillRect(-8, -4, 16, 8);
+		}
+		this.ctx.restore();
+
+		if (renderX < -100 || renderX > this.canvas.width + 100 || this.y < -100 || this.y > this.canvas.height + 100) {
+			this.remove();
+		}
 	};
 	this.game.playSound("ENEMY_SHOOT");
 	this.game.addProjectile(projectile);
@@ -1717,15 +1761,44 @@ Enemy.prototype.update = function() {
 	this.stateImg = img;
 	if (this.health <= 0) { this.remove(); return; }
 
-	this.drawHealthbar();
-	var x = this.x - this.game.cameraX;
-	var y = this.y;
+	var spiderman = this.game.spiderman;
+	var isInScreen = (this.x - this.game.cameraX <= this.canvas.width + 100);
 	var width = img ? img.width * this.scale : 40;
 	var height = img ? img.height * this.scale : 60;
 
+	// 1. Turn facing / aiming direction towards Spider-Man
+	if (spiderman) {
+		this.facing = (spiderman.x + 20 < this.x + width / 2) ? -1 : 1;
+	}
+
+	// 2. Active walking / movement towards Spider-Man (bounded by roof)
+	if (spiderman && isInScreen) {
+		var minX = this.roof ? this.roof.x + 5 : (this.x - 200);
+		var maxX = this.roof ? (this.roof.x + this.roof.width - width - 5) : (this.x + 200);
+
+		if (this.facing === -1) {
+			if (this.x > minX) {
+				this.x -= this.walkSpeed;
+			}
+		} else if (this.facing === 1) {
+			if (this.x < maxX) {
+				this.x += this.walkSpeed;
+			}
+		}
+	}
+
+	this.drawHealthbar();
+	var x = this.x - this.game.cameraX;
+	var y = this.y;
+
+	// Render sprite with current facing direction
 	this.ctx.save();
-	this.ctx.scale(-1, 1);
-	if (img) this.ctx.drawImage(img, (x + width) * -1, y, width, height);
+	if (this.facing === -1) {
+		this.ctx.scale(-1, 1);
+		if (img) this.ctx.drawImage(img, (x + width) * -1, y, width, height);
+	} else {
+		if (img) this.ctx.drawImage(img, x, y, width, height);
+	}
 	this.ctx.restore();
 
 	if (this.wasDamagedOnPreviousFrame) {
@@ -1734,7 +1807,6 @@ Enemy.prototype.update = function() {
 		this.ctx.fillRect(x, y, width, height);
 	}
 
-	var isInScreen = this.x - this.game.cameraX <= this.canvas.width;
 	if (this.frame % 140 === 0 && isInScreen) this.shoot();
 	this.frame++;
 };
