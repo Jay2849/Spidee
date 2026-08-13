@@ -958,15 +958,18 @@ SpidermanGame.prototype.drawDynamicEnvironment = function() {
 
 	// Draw parallax background image if present
 	var background = this.resources.BACKGROUND;
-	if (background) {
+	if (background && background.width > 0 && background.height > 0) {
 		var ratio = background.width / background.height;
-		var x = (this.cameraX / 5) * -1;
-		x %= (h * ratio);
-		ctx.save();
-		ctx.globalAlpha = 0.45;
-		ctx.drawImage(background, x, 0, h * ratio, h);
-		ctx.drawImage(background, x + h * ratio, 0, h * ratio, h);
-		ctx.restore();
+		var bgWidth = h * ratio;
+		if (bgWidth > 0) {
+			var x = (this.cameraX / 5) * -1;
+			x %= bgWidth;
+			ctx.save();
+			ctx.globalAlpha = 0.45;
+			ctx.drawImage(background, x, 0, bgWidth, h);
+			ctx.drawImage(background, x + bgWidth, 0, bgWidth, h);
+			ctx.restore();
+		}
 	}
 };
 
@@ -1562,13 +1565,15 @@ SpiderMan.prototype.update = function() {
 	}
 
 	var img = this.stateImage();
+	var width = (img && img.width > 0) ? img.width * this.scale : 40;
+	var height = (img && img.height > 0) ? img.height * this.scale : 60;
 
 	if (this.x - this.game.cameraX < 0) this.x = this.game.cameraX; 
 	if (this.x - this.game.cameraX > 160) this.game.cameraX += this.velocityX;
 
 	// Roof collisions
-	var roofLeft = this.game.isRoofAtPoint(this.x - this.velocityX, this.y + img.height * this.scale + 1);
-	var roofRight = this.game.isRoofAtPoint(this.x + img.width * this.scale - this.velocityX, this.y + img.height * this.scale + 1);
+	var roofLeft = this.game.isRoofAtPoint(this.x - this.velocityX, this.y + height + 1);
+	var roofRight = this.game.isRoofAtPoint(this.x + width - this.velocityX, this.y + height + 1);
 
 	if (roofLeft || roofRight) {
 		var roof = roofLeft || roofRight;
@@ -1576,7 +1581,7 @@ SpiderMan.prototype.update = function() {
 			this.x -= this.velocityX;
 			this.velocityX = 0;
 		} else {
-			this.y = this.canvas.height - roof.height - img.height * this.scale;
+			this.y = this.canvas.height - roof.height - height;
 			this.velocityY = 0;
 			this.removeState("JUMP");
 			this.jumpsLeft = 2;
@@ -1647,7 +1652,10 @@ function Roof(game, x, y) {
 	this.canvas = game.canvas;
 	this.ctx = game.ctx;
 
-	this.width = Math.round(Math.random() * (this.game.resources.BUILDING.width - 200)) + 200;
+	var buildingImg = this.game.resources.BUILDING;
+	var buildingWidth = (buildingImg && buildingImg.width > 0) ? buildingImg.width : 500;
+
+	this.width = Math.round(Math.random() * Math.max(100, buildingWidth - 200)) + 200;
 	this.height = Math.round(Math.random() * 50) + 100;
 	this.fullWidth = this.width + 15;
 	this.x = x || 0;
