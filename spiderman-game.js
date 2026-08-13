@@ -1910,7 +1910,31 @@ FlyingDrone.prototype.handleHitWithProjectile = function(projectile) {
 	}
 };
 
-// Venom Boss Class (Rebalanced Power & All-Black Enemy Shape Sprite)
+// Retro Pixel Art Venom Matrix (matching uploaded artwork with bright purple borders & chest cross emblem)
+var VENOM_PIXEL_SPRITE = [
+	".......PPPPPPP.......",
+	".....PPBBBBBBBP......",
+	"....PBBBBBBBBBBB.....",
+	"...PBBBBBBBBBBBBB....",
+	"..PBBBPWWWWPWWWWP....",
+	"..PBBBPWWWWPWWWWP....",
+	"..PBBBPWWWWPWWWWP....",
+	"..PBBBPWWWWPWWWWP....",
+	"...PBBBBPBBBBBBP.....",
+	"...PBBBBBBBBBBBP.....",
+	".PPBBBBBBBBBBBBBP...",
+	"PBBBBBBBBBBBBBBBBB..",
+	"PBBBBBBBPBBBBBBBBBP.",
+	"PBBBBBBPPPBBPBBBBBP.",
+	"PBBBBBBBPBBBBBBBBBP.",
+	"PBBBBBBBBBBBBBBBBBP.",
+	"PBBBBBBBBBBBBBBBBBP.",
+	".PPBBBBBPPPPBBBBBP..",
+	"..PBBBBB...PBBBBBP..",
+	"..PBBBBB...PBBBBBP..",
+	"PPPPPPPP...PPPPPPPPP"
+];
+
 function VenomBoss(game, opts) {
 	opts = opts || {};
 	this.game = game;
@@ -1918,13 +1942,15 @@ function VenomBoss(game, opts) {
 	this.ctx = game.ctx;
 	this.x = opts.x || 800;
 	this.y = opts.y || 120;
-	this.health = 8; // Rebalanced from 15 to 8
+	this.health = 8;
 	this.maxHealth = 8;
 	this.name = "VENOM";
-	this.scale = 0.65; // Matches enemy character shape
+	this.scale = 0.65;
 	this.frame = 0;
 	this.facing = -1;
 	this.wasDamagedOnPreviousFrame = false;
+	this.spriteWidth = VENOM_PIXEL_SPRITE[0].length * 3.2;
+	this.spriteHeight = VENOM_PIXEL_SPRITE.length * 3.2;
 }
 
 VenomBoss.prototype.shoot = function() {
@@ -1933,9 +1959,8 @@ VenomBoss.prototype.shoot = function() {
 	projectile.name = "SYMBIOTE";
 	projectile.damage = 1;
 
-	var img = this.game.resources[this.name] || this.game.resources["THUG"];
-	var width = img ? img.width * this.scale : 40;
-	var height = img ? img.height * this.scale : 60;
+	var width = this.spriteWidth;
+	var height = this.spriteHeight;
 
 	projectile.x = (this.facing === 1) ? (this.x + width) : (this.x - 10);
 	projectile.y = this.y + height / 2;
@@ -1946,7 +1971,7 @@ VenomBoss.prototype.shoot = function() {
 	var dx = targetX - projectile.x;
 	var dy = targetY - projectile.y;
 	var angle = Math.atan2(dy, dx);
-	var speed = 5.2; // Balanced projectile speed
+	var speed = 5.2;
 
 	projectile.vx = Math.cos(angle) * speed;
 	projectile.vy = Math.sin(angle) * speed;
@@ -1978,8 +2003,7 @@ VenomBoss.prototype.shoot = function() {
 
 VenomBoss.prototype.drawHealthbar = function() {
 	var healthbar = { height: 8, width: 140, style: "#a855f7", borderWidth: 2, borderStyle: "#000" };
-	var img = this.game.resources[this.name] || this.game.resources["THUG"];
-	var width = img ? img.width * this.scale : 40;
+	var width = this.spriteWidth;
 	var x = this.x - this.game.cameraX - healthbar.width / 2 + width / 2;
 	var y = this.y - 20;
 	var fillW = healthbar.width * this.health / this.maxHealth;
@@ -1998,14 +2022,11 @@ VenomBoss.prototype.drawHealthbar = function() {
 VenomBoss.prototype.update = function() {
 	if (this.health <= 0) { this.remove(); return; }
 
-	var img = this.game.resources[this.name] || this.game.resources["THUG"];
-	this.stateImg = img;
-
 	var spiderman = this.game.spiderman;
 	var renderX = this.x - this.game.cameraX;
 	var renderY = this.y;
-	var width = img ? img.width * this.scale : 40;
-	var height = img ? img.height * this.scale : 60;
+	var width = this.spriteWidth;
+	var height = this.spriteHeight;
 
 	if (spiderman) {
 		this.facing = (spiderman.x + 20 < this.x + width / 2) ? -1 : 1;
@@ -2013,75 +2034,47 @@ VenomBoss.prototype.update = function() {
 
 	this.drawHealthbar();
 
-	// Render All-Black Enemy Character Sprite with Purple Boundary Contour (Hands, Legs, Body)
-	this.ctx.save();
-	var renderX_final = renderX;
+	// Render Exact Pixel Art Venom Sprite from Uploaded Image with Bright Purple Outlines & Chest Cross
+	var ctx = this.ctx;
+	var sprite = VENOM_PIXEL_SPRITE;
+	var rows = sprite.length;
+	var cols = sprite[0].length;
+	var pSize = 3.2;
+
+	ctx.save();
+	ctx.translate(renderX, renderY);
+
 	if (this.facing === -1) {
-		this.ctx.scale(-1, 1);
-		renderX_final = (renderX + width) * -1;
+		ctx.scale(-1, 1);
+		ctx.translate(-width, 0);
 	}
 
-	this.ctx.shadowBlur = 14;
-	this.ctx.shadowColor = "#a855f7";
+	// Electric Purple Glow for boundary outline
+	ctx.shadowBlur = 12;
+	ctx.shadowColor = "#a855f7";
 
-	if (this.ctx.filter !== undefined) {
-		// Outline contour pass to highlight hands, feet, head and body boundaries
-		var offsets = [[-1.5, 0], [1.5, 0], [0, -1.5], [0, 1.5], [-1, -1], [1, -1], [-1, 1], [1, 1]];
-		this.ctx.filter = "brightness(0) drop-shadow(0px 0px 2px #c084fc)";
-		for (var o = 0; o < offsets.length; o++) {
-			if (img) this.ctx.drawImage(img, renderX_final + offsets[o][0], renderY + offsets[o][1], width, height);
+	for (var r = 0; r < rows; r++) {
+		for (var c = 0; c < cols; c++) {
+			var char = sprite[r][c];
+			if (char === ".") continue;
+
+			if (char === "P") {
+				ctx.fillStyle = "#a855f7"; // Bright Vibrant Electric Purple
+			} else if (char === "B") {
+				ctx.fillStyle = "#050508"; // Pitch Black
+			} else if (char === "W") {
+				ctx.fillStyle = "#ffffff"; // Pure White Eyes
+			}
+
+			ctx.fillRect(c * pSize, r * pSize, pSize, pSize);
 		}
-		// Core body All-Black fill
-		this.ctx.filter = "brightness(0)";
-		if (img) this.ctx.drawImage(img, renderX_final, renderY, width, height);
-		this.ctx.filter = "none";
-	} else {
-		if (img) this.ctx.drawImage(img, renderX_final, renderY, width, height);
 	}
-	this.ctx.restore();
-
-	// Render Dual Sharp White Spider-Man / Venom Symbiote Eyes
-	this.ctx.save();
-	var headX = (this.facing === -1) ? (renderX + 12) : (renderX + width - 26);
-	var headY = renderY + 12;
-
-	this.ctx.fillStyle = "#ffffff";
-	this.ctx.shadowBlur = 10;
-	this.ctx.shadowColor = "#ffffff";
-
-	// Front Eye (Sharp Slanted Spider-Man/Venom shape)
-	this.ctx.beginPath();
-	if (this.facing === -1) {
-		this.ctx.moveTo(headX + 2, headY - 5);
-		this.ctx.quadraticCurveTo(headX - 10, headY + 1, headX - 6, headY + 7);
-		this.ctx.quadraticCurveTo(headX - 1, headY + 3, headX + 2, headY - 5);
-	} else {
-		this.ctx.moveTo(headX - 2, headY - 5);
-		this.ctx.quadraticCurveTo(headX + 10, headY + 1, headX + 6, headY + 7);
-		this.ctx.quadraticCurveTo(headX + 1, headY + 3, headX - 2, headY - 5);
-	}
-	this.ctx.fill();
-
-	// Back Eye (Secondary Slanted Symbiote Eye)
-	var backEyeX = (this.facing === -1) ? (headX + 10) : (headX - 10);
-	this.ctx.beginPath();
-	if (this.facing === -1) {
-		this.ctx.moveTo(backEyeX + 1, headY - 4);
-		this.ctx.quadraticCurveTo(backEyeX - 6, headY, backEyeX - 4, headY + 5);
-		this.ctx.quadraticCurveTo(backEyeX, headY + 2, backEyeX + 1, headY - 4);
-	} else {
-		this.ctx.moveTo(backEyeX - 1, headY - 4);
-		this.ctx.quadraticCurveTo(backEyeX + 6, headY, backEyeX + 4, headY + 5);
-		this.ctx.quadraticCurveTo(backEyeX, headY + 2, backEyeX - 1, headY - 4);
-	}
-	this.ctx.fill();
-
-	this.ctx.restore();
+	ctx.restore();
 
 	if (this.wasDamagedOnPreviousFrame) {
 		this.wasDamagedOnPreviousFrame = false;
-		this.ctx.fillStyle = "rgba(168, 85, 247, 0.45)";
-		this.ctx.fillRect(renderX, renderY, width, height);
+		ctx.fillStyle = "rgba(168, 85, 247, 0.45)";
+		ctx.fillRect(renderX, renderY, width, height);
 	}
 
 	var isInScreen = renderX <= this.canvas.width + 100;
