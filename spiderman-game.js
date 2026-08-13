@@ -48,13 +48,16 @@ var RESOURCES = {
 	"KNIFE"              : "images/knife.png",
 };
 
-var AUDIO_RESOURCES = {
-	"AMAZING_SPIDER_MAN_2" : new Audio(RESOURCES_FOLDER_PATH + "audio/amazing-spider-man-2.mp3"),
-	"FRIENDLY_SPIDERMAN"   : new Audio(RESOURCES_FOLDER_PATH + "audio/60-theme-song.mp3"),
-	"MOVIE_THEME"          : new Audio(RESOURCES_FOLDER_PATH + "audio/old-theme.mp3"),
-	"ANIMATED_SERIES"      : new Audio(RESOURCES_FOLDER_PATH + "audio/animated-series-theme.mp3"),
-	"SHOOT"                : new Audio(RESOURCES_FOLDER_PATH + "audio/shooting-web.mp3"),
-};
+var AUDIO_RESOURCES = {};
+try {
+	AUDIO_RESOURCES = {
+		"AMAZING_SPIDER_MAN_2" : new Audio(RESOURCES_FOLDER_PATH + "audio/amazing-spider-man-2.mp3"),
+		"FRIENDLY_SPIDERMAN"   : new Audio(RESOURCES_FOLDER_PATH + "audio/60-theme-song.mp3"),
+		"MOVIE_THEME"          : new Audio(RESOURCES_FOLDER_PATH + "audio/old-theme.mp3"),
+		"ANIMATED_SERIES"      : new Audio(RESOURCES_FOLDER_PATH + "audio/animated-series-theme.mp3"),
+		"SHOOT"                : new Audio(RESOURCES_FOLDER_PATH + "audio/shooting-web.mp3"),
+	};
+} catch (e) {}
 
 var AUDIO_LOOP = [
 	"AMAZING_SPIDER_MAN_2",
@@ -434,26 +437,38 @@ SpidermanGame.prototype.load = function() {
 			});
 		}
 
-		var promises = reourcesArray.map(function(resource) {
-			return new Promise(function(resolve) {
-				var img = new Image();
-				img.onload = function() {
-					self.resources[resource.name] = img;
-					resolve(img);
-				};
-				img.onerror = function() {
-					self.resources[resource.name] = img;
-					resolve(img);
-				};
-				img.src = resource.source;
-			});
-		});
-
-		Promise.all(promises).then(function() {
+		var hasStarted = false;
+		var start = function() {
+			if (hasStarted) return;
+			hasStarted = true;
 			self.initialized = true;
 			self.restart();
 			resolve();
+		};
+
+		// 350ms Safety Timeout: Force start game even if network/cache stalls image preloading!
+		setTimeout(start, 350);
+
+		var promises = reourcesArray.map(function(resource) {
+			return new Promise(function(res) {
+				var img = new Image();
+				img.onload = function() {
+					self.resources[resource.name] = img;
+					res(img);
+				};
+				img.onerror = function() {
+					self.resources[resource.name] = img;
+					res(img);
+				};
+				img.src = resource.source;
+				if (img.complete) {
+					self.resources[resource.name] = img;
+					res(img);
+				}
+			});
 		});
+
+		Promise.all(promises).then(start);
 	});
 };
 
