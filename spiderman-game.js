@@ -86,6 +86,16 @@ var DIRECTION = {
 	LEFT: -1,
 };
 
+function getDefaultBossMilestones() {
+	return [
+		{ score: 15,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
+		{ score: 35,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+		{ score: 65,  type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
+		{ score: 95,  type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+		{ score: 135, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+	];
+}
+
 function SpidermanGame(opts) {
 	var options = {
 		canvas: "canvas",
@@ -117,16 +127,6 @@ function SpidermanGame(opts) {
 	} catch (e) {
 		this.highScore = 0;
 	}
-
-function getDefaultBossMilestones() {
-	return [
-		{ score: 15,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
-		{ score: 35,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-		{ score: 65,  type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
-		{ score: 95,  type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-		{ score: 135, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
-	];
-}
 
 	this.weatherTimer = 0;
 	this.weatherState = "SUNSET"; // SUNSET, NIGHT, STORM
