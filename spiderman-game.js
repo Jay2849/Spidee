@@ -2013,7 +2013,7 @@ VenomBoss.prototype.update = function() {
 
 	this.drawHealthbar();
 
-	// Render All-Black Enemy Character Sprite with Glowing Aura & Eyes
+	// Render All-Black Enemy Character Sprite with Purple Boundary Contour (Hands, Legs, Body)
 	this.ctx.save();
 	var renderX_final = renderX;
 	if (this.facing === -1) {
@@ -2023,7 +2023,15 @@ VenomBoss.prototype.update = function() {
 
 	this.ctx.shadowBlur = 14;
 	this.ctx.shadowColor = "#a855f7";
+
 	if (this.ctx.filter !== undefined) {
+		// Outline contour pass to highlight hands, feet, head and body boundaries
+		var offsets = [[-1.5, 0], [1.5, 0], [0, -1.5], [0, 1.5], [-1, -1], [1, -1], [-1, 1], [1, 1]];
+		this.ctx.filter = "brightness(0) drop-shadow(0px 0px 2px #c084fc)";
+		for (var o = 0; o < offsets.length; o++) {
+			if (img) this.ctx.drawImage(img, renderX_final + offsets[o][0], renderY + offsets[o][1], width, height);
+		}
+		// Core body All-Black fill
 		this.ctx.filter = "brightness(0)";
 		if (img) this.ctx.drawImage(img, renderX_final, renderY, width, height);
 		this.ctx.filter = "none";
@@ -2032,16 +2040,42 @@ VenomBoss.prototype.update = function() {
 	}
 	this.ctx.restore();
 
-	// Draw Glowing Symbiote Eyes on Top
+	// Render Dual Sharp White Spider-Man / Venom Symbiote Eyes
 	this.ctx.save();
-	var eyeX = (this.facing === -1) ? (renderX + 10) : (renderX + width - 15);
-	var eyeY = renderY + 12;
+	var headX = (this.facing === -1) ? (renderX + 12) : (renderX + width - 26);
+	var headY = renderY + 12;
+
 	this.ctx.fillStyle = "#ffffff";
-	this.ctx.shadowBlur = 8;
-	this.ctx.shadowColor = "#a855f7";
+	this.ctx.shadowBlur = 10;
+	this.ctx.shadowColor = "#ffffff";
+
+	// Front Eye (Sharp Slanted Spider-Man/Venom shape)
 	this.ctx.beginPath();
-	this.ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2);
+	if (this.facing === -1) {
+		this.ctx.moveTo(headX + 2, headY - 5);
+		this.ctx.quadraticCurveTo(headX - 10, headY + 1, headX - 6, headY + 7);
+		this.ctx.quadraticCurveTo(headX - 1, headY + 3, headX + 2, headY - 5);
+	} else {
+		this.ctx.moveTo(headX - 2, headY - 5);
+		this.ctx.quadraticCurveTo(headX + 10, headY + 1, headX + 6, headY + 7);
+		this.ctx.quadraticCurveTo(headX + 1, headY + 3, headX - 2, headY - 5);
+	}
 	this.ctx.fill();
+
+	// Back Eye (Secondary Slanted Symbiote Eye)
+	var backEyeX = (this.facing === -1) ? (headX + 10) : (headX - 10);
+	this.ctx.beginPath();
+	if (this.facing === -1) {
+		this.ctx.moveTo(backEyeX + 1, headY - 4);
+		this.ctx.quadraticCurveTo(backEyeX - 6, headY, backEyeX - 4, headY + 5);
+		this.ctx.quadraticCurveTo(backEyeX, headY + 2, backEyeX + 1, headY - 4);
+	} else {
+		this.ctx.moveTo(backEyeX - 1, headY - 4);
+		this.ctx.quadraticCurveTo(backEyeX + 6, headY, backEyeX + 4, headY + 5);
+		this.ctx.quadraticCurveTo(backEyeX, headY + 2, backEyeX - 1, headY - 4);
+	}
+	this.ctx.fill();
+
 	this.ctx.restore();
 
 	if (this.wasDamagedOnPreviousFrame) {
