@@ -1752,7 +1752,7 @@ function Enemy(game, opts) {
 	this.game = game;
 	this.canvas = game.canvas;
 	this.ctx = game.ctx;
-	this.health = opts.health || 4;
+	this.health = opts.health || 1;
 	this.maxHealth = opts.maxHealth || this.health;
 	this.name = opts.name || "THUG";
 	this.x = opts.x || this.canvas.width - 50;
