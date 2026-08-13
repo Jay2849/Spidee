@@ -1328,7 +1328,7 @@ function SpiderMan(game) {
 	this.maxFallSpeed = 11;
 
 	this.runningDirection = 0;
-	this.runningSpeed = 5.5;
+	this.runningSpeed = 4.2;
 
 	this.jumpsLeft = 2;
 	this.jumpKeyPressedPrevious = false;
@@ -1596,8 +1596,9 @@ SpiderMan.prototype.update = function() {
 	var width = (img && img.width > 0) ? img.width * this.scale : 40;
 	var height = (img && img.height > 0) ? img.height * this.scale : 60;
 
-	if (this.x - this.game.cameraX < 0) this.x = this.game.cameraX; 
-	if (this.x - this.game.cameraX > 160) this.game.cameraX += this.velocityX;
+	// Camera smoothly centers Spider-Man horizontally in the middle of the screen
+	var targetCameraX = this.x - (this.canvas.width / 2) + (width / 2);
+	this.game.cameraX = Math.max(0, targetCameraX);
 
 	// Roof collisions
 	var roofLeft = this.game.isRoofAtPoint(this.x - this.velocityX, this.y + height + 1);
