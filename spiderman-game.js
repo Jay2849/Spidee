@@ -177,31 +177,32 @@ SpidermanGame.prototype.load = function() {
 	this.canvas.height = 500;
 	this.canvas.width = 1111;
 
-	var menu = document.createElement("div");
-	menu.innerHTML = 
+	var pauseMenu = document.createElement("div");
+	pauseMenu.style.display = "none";
+	pauseMenu.innerHTML = 
 	'<div class="spiderman-game-menu-container">' +
 		'<div class="spiderman-game-menu-title">PAUSED</div>' +
 		'<div class="spiderman-game-menu-button spiderman-game-menu-button-resume">RESUME</div>' +
 		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-sounds">MUTE SOUNDS</div>' +
 		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-music">MUTE MUSIC</div>' +
 	'</div>';
-	menu = menu.firstChild;
-	menu.style.display = "none";
-	menu.querySelector(".spiderman-game-menu-button-resume").onclick = function() {
-		self.unpause();
-	};
-	menu.querySelector(".spiderman-game-menu-button-mute-sounds").onclick = function() {
+	var btnResume = pauseMenu.querySelector(".spiderman-game-menu-button-resume");
+	if (btnResume) btnResume.onclick = function() { self.unpause(); };
+	var btnSounds = pauseMenu.querySelector(".spiderman-game-menu-button-mute-sounds");
+	if (btnSounds) btnSounds.onclick = function() {
 		self.soundEffects = !self.soundEffects;
 		this.innerHTML = self.soundEffects ? "MUTE SOUNDS" : "UNMUTE SOUNDS";
 	};
-	menu.querySelector(".spiderman-game-menu-button-mute-music").onclick = function() {
+	var btnMusic = pauseMenu.querySelector(".spiderman-game-menu-button-mute-music");
+	if (btnMusic) btnMusic.onclick = function() {
 		if (self.muted) { self.unmute(); this.innerHTML = "MUTE MUSIC"; }
 		else { self.mute(); this.innerHTML = "UNMUTE MUSIC"; }
 	};
-	document.body.appendChild(menu);
-	this.pauseMenu = menu;
+	document.body.appendChild(pauseMenu);
+	this.pauseMenu = pauseMenu;
 
 	var gameoverMenu = document.createElement("div");
+	gameoverMenu.style.display = "none";
 	gameoverMenu.innerHTML = 
 	'<div class="spiderman-game-menu-container">' +
 		'<div class="spiderman-game-menu-title">GAME OVER</div>' +
@@ -209,10 +210,8 @@ SpidermanGame.prototype.load = function() {
 		'<div class="spiderman-game-menu-title highscore-highlight">BEST RECORD: <span class="spiderman-game-highscore">0</span></div>' +
 		'<div class="spiderman-game-menu-button spiderman-game-menu-button-restart">RESTART [ENTER]</div>' +
 	'</div>';
-	gameoverMenu = gameoverMenu.firstChild;
-	gameoverMenu.querySelector(".spiderman-game-menu-button-restart").onclick = function() {
-		self.restart();
-	};
+	var btnRestart = gameoverMenu.querySelector(".spiderman-game-menu-button-restart");
+	if (btnRestart) btnRestart.onclick = function() { self.restart(); };
 	document.body.appendChild(gameoverMenu);
 	this.gameoverMenu = gameoverMenu;
 
@@ -1122,8 +1121,11 @@ SpidermanGame.prototype.showPauseMenu = function() {
 };
 
 SpidermanGame.prototype.showGameoverMenu = function() {
-	this.gameoverMenu.querySelector(".spiderman-game-score").innerHTML = this.score;
-	this.gameoverMenu.querySelector(".spiderman-game-highscore").innerHTML = this.highScore;
+	if (!this.gameoverMenu) return;
+	var scoreEl = this.gameoverMenu.querySelector(".spiderman-game-score");
+	if (scoreEl) scoreEl.innerHTML = this.score;
+	var highscoreEl = this.gameoverMenu.querySelector(".spiderman-game-highscore");
+	if (highscoreEl) highscoreEl.innerHTML = this.highScore;
 	this.gameoverMenu.style.display = "block";
 };
 
