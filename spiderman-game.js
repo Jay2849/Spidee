@@ -190,25 +190,29 @@ SpidermanGame.prototype.load = function() {
 	this.canvas.width = 1111;
 
 	var pauseMenu = document.createElement("div");
+	pauseMenu.className = "spiderman-game-overlay-backdrop";
 	pauseMenu.style.display = "none";
 	pauseMenu.innerHTML = 
-	'<div class="spiderman-game-menu-container">' +
-		'<div class="spiderman-game-menu-title">PAUSED</div>' +
-		'<div class="spiderman-game-menu-button spiderman-game-menu-button-resume">RESUME</div>' +
-		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-sounds">MUTE SOUNDS</div>' +
-		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-music">MUTE MUSIC</div>' +
+	'<div class="spiderman-game-menu-container spiderman-game-menu-active">' +
+		'<div class="spiderman-game-menu-title" style="color: #00f0ff; font-size: 28px; text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);">⚙️ SETTINGS & PAUSE</div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-resume" style="background: rgba(14, 165, 233, 0.85); border-color: #38bdf8; margin-top: 10px;">▶ RESUME GAME</div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-restart-menu" style="background: rgba(230, 36, 41, 0.85); border-color: #ff4d4d; margin-top: 10px;">🔄 RESTART GAME</div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-sounds" style="margin-top: 10px;">🔊 SOUND EFFECTS: ON</div>' +
+		'<div class="spiderman-game-menu-button spiderman-game-menu-button-mute-music" style="margin-top: 10px;">🎵 MUSIC: ON</div>' +
 	'</div>';
 	var btnResume = pauseMenu.querySelector(".spiderman-game-menu-button-resume");
 	if (btnResume) btnResume.onclick = function() { self.unpause(); };
+	var btnRestartMenu = pauseMenu.querySelector(".spiderman-game-menu-button-restart-menu");
+	if (btnRestartMenu) btnRestartMenu.onclick = function() { self.restart(); };
 	var btnSounds = pauseMenu.querySelector(".spiderman-game-menu-button-mute-sounds");
 	if (btnSounds) btnSounds.onclick = function() {
 		self.soundEffects = !self.soundEffects;
-		this.innerHTML = self.soundEffects ? "MUTE SOUNDS" : "UNMUTE SOUNDS";
+		this.innerHTML = self.soundEffects ? "🔊 SOUND EFFECTS: ON" : "🔇 SOUND EFFECTS: OFF";
 	};
 	var btnMusic = pauseMenu.querySelector(".spiderman-game-menu-button-mute-music");
 	if (btnMusic) btnMusic.onclick = function() {
-		if (self.muted) { self.unmute(); this.innerHTML = "MUTE MUSIC"; }
-		else { self.mute(); this.innerHTML = "UNMUTE MUSIC"; }
+		if (self.muted) { self.unmute(); this.innerHTML = "🎵 MUSIC: ON"; }
+		else { self.mute(); this.innerHTML = "🔇 MUSIC: OFF"; }
 	};
 	document.body.appendChild(pauseMenu);
 	this.pauseMenu = pauseMenu;
@@ -255,99 +259,29 @@ SpidermanGame.prototype.load = function() {
 	document.addEventListener("click", handleUserInteraction);
 
 	var createTouchControls = function() {
-		if (document.getElementById("spideeMobileControls")) return;
+		if (document.getElementById("spideeSettingsOverlay")) return;
 
-		if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-			window.screen.orientation.lock("landscape").catch(function() {});
-		}
-
-		var container = document.createElement("div");
-		container.className = "mobile-touch-controls-overlay";
-		container.id = "spideeMobileControls";
-		container.innerHTML = 
-			'<div class="touch-overlay-left">' +
-				'<button class="touch-btn touch-btn-nav" id="spideeBtnLeft" aria-label="Move Left">◀</button>' +
-				'<button class="touch-btn touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
-			'</div>' +
-			'<div class="touch-overlay-top">' +
-				'<button class="touch-btn touch-btn-utility" id="spideeBtnPause" aria-label="Pause">⏸️ PAUSE</button>' +
-				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄 RESTART</button>' +
-			'</div>' +
-			'<div class="touch-overlay-right">' +
-				'<button class="touch-btn touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️<br>SHOOT</button>' +
-				'<button class="touch-btn touch-btn-nav touch-btn-forward" id="spideeBtnRight" aria-label="Move Right">▶</button>' +
-			'</div>';
-
-		var guideBar = document.createElement("div");
-		guideBar.className = "gesture-guide-bar";
-		guideBar.innerHTML = 
-			'<div class="gesture-guide-item"><span>👆 1x Tap:</span> Jump</div>' +
-			'<div class="gesture-guide-item"><span>✌️ 2x Tap:</span> Double Jump</div>' +
-			'<div class="gesture-guide-item"><span>⏱️ Hold:</span> Web Swing</div>' +
-			'<div class="gesture-guide-item"><span>⚡ 3x Tap:</span> Spider-Rage</div>';
+		var settingsContainer = document.createElement("div");
+		settingsContainer.className = "spidee-top-settings-wrapper";
+		settingsContainer.id = "spideeSettingsOverlay";
+		settingsContainer.innerHTML = 
+			'<button class="spidee-settings-btn" id="spideeTopSettingsBtn" aria-label="Settings">⚙️ SETTINGS</button>';
 
 		if (self.canvas.parentNode) {
-			self.canvas.parentNode.appendChild(container);
-			if (self.canvas.parentNode.parentNode) {
-				self.canvas.parentNode.parentNode.appendChild(guideBar);
-			}
+			self.canvas.parentNode.appendChild(settingsContainer);
 		} else {
-			document.body.appendChild(container);
+			document.body.appendChild(settingsContainer);
 		}
 
-		var bindTouch = function(btnId, keyCode) {
-			var btn = document.getElementById(btnId);
-			if (!btn) return;
-
-			var handlePress = function(e) {
+		var btn = document.getElementById("spideeTopSettingsBtn");
+		if (btn) {
+			btn.addEventListener("click", function(e) {
 				if (e.cancelable) e.preventDefault();
 				handleUserInteraction();
-				btn.classList.add("active");
-				if (navigator.vibrate) try { navigator.vibrate(20); } catch(err){}
-
-				if (keyCode === KEY.ENTER) {
-					self.restart();
-					return;
-				}
-				if (keyCode === KEY.ESC && !self.escapeKey) {
-					self.escapeKey = true;
-					if (self.paused) self.unpause();
-					else self.pause();
-					return;
-				}
-				if (keyCode === KEY.SHIFT) {
-					if (self.spiderman.rageMeter >= 100 && self.spiderman.rageTimer <= 0) {
-						self.spiderman.activateRage();
-					} else {
-						self.addFloatingText(self.spiderman.x, self.spiderman.y - 30, "⚡ RAGE METER NOT FULL!", "#ff0055", 18);
-					}
-					return;
-				}
-
-				self.spiderman.keydown(keyCode);
-			};
-
-			var handleRelease = function(e) {
-				if (e.cancelable) e.preventDefault();
-				btn.classList.remove("active");
-				if (keyCode === KEY.ESC) self.escapeKey = false;
-				self.spiderman.keyup(keyCode);
-			};
-
-			btn.addEventListener("touchstart", handlePress, { passive: false });
-			btn.addEventListener("touchend", handleRelease, { passive: false });
-			btn.addEventListener("touchcancel", handleRelease, { passive: false });
-			btn.addEventListener("mousedown", handlePress);
-			btn.addEventListener("mouseup", handleRelease);
-			btn.addEventListener("mouseleave", handleRelease);
-		};
-
-		bindTouch("spideeBtnLeft", KEY.ARROW_LEFT);
-		bindTouch("spideeBtnRight", KEY.ARROW_RIGHT);
-		bindTouch("spideeBtnRage", KEY.SHIFT);
-		bindTouch("spideeBtnShoot", KEY.SPACEBAR);
-		bindTouch("spideeBtnPause", KEY.ESC);
-		bindTouch("spideeBtnRestart", KEY.ENTER);
+				if (self.paused) self.unpause();
+				else self.pause();
+			});
+		}
 
 		// Instant 0ms Latency Touch Gesture Engine for Game Canvas
 		var tapCount = 0;

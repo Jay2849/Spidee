@@ -368,3 +368,71 @@
 		font-size: 10px;
 	}
 }
+
+/* Full Viewport Canvas & Settings Button Styles */
+.canvas-wrapper {
+	width: 98vw;
+	max-width: 1400px;
+	margin: 5px auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.canvas-container {
+	width: 100%;
+	position: relative;
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 12px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(230, 36, 41, 0.35);
+	border: 2px solid rgba(255, 255, 255, 0.15);
+	background: #090d16;
+}
+
+#canvas {
+	width: 100%;
+	height: auto;
+	display: block;
+	aspect-ratio: 1111 / 500;
+}
+
+.spidee-top-settings-wrapper {
+	position: absolute;
+	top: 12px;
+	right: 16px;
+	z-index: 90;
+}
+
+.spidee-settings-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-family: SpidermanGamePixelFont, Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	font-size: 13px;
+	height: 38px;
+	padding: 0 16px;
+	border: 1.5px solid rgba(255, 255, 255, 0.35);
+	outline: none;
+	cursor: pointer;
+	user-select: none;
+	border-radius: 20px;
+	background: rgba(15, 23, 42, 0.85);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	color: #ffffff;
+	letter-spacing: 0.5px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+	transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.spidee-settings-btn:hover {
+	background: rgba(30, 41, 59, 0.95);
+	border-color: #00f0ff;
+	color: #00f0ff;
+	box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+}
+
+.spidee-settings-btn:active {
+	transform: scale(0.94);
+}
