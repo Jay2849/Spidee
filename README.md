@@ -2,17 +2,17 @@
   <tr>
     <td width="65%" valign="top">
       <h1>🕸️ SPIDEE ⚡</h1>
-      <h3><em>The Ultimate High-Octane Retro Arcade Platformer Runner</em></h3>
+      <h3><em>The Ultimate Retro Arcade Platformer Runner</em></h3>
       <p>
-        <a href="https://spideee.netlify.app"><img src="https://img.shields.io/badge/🎮%20Play%20Live-spideee.netlify.app-e62429?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Play Live Demo" /></a>
+        <a href="https://spidee.vercel.app"><img src="https://img.shields.io/badge/🎮%20Play%20Live-spidee.vercel.app-e62429?style=for-the-badge&logo=vercel&logoColor=white" alt="Play Live on Vercel" /></a>
       </p>
       <p>
         <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-red.svg" alt="License: MIT" /></a>
-        <img src="https://img.shields.io/badge/Mobile-Android%20%26%20iOS%20Touch-00f0ff.svg" alt="Mobile" />
-        <img src="https://img.shields.io/badge/Audio-SFX%20%26%20Music-ff0055.svg" alt="Audio" />
+        <img src="https://img.shields.io/badge/Display-True%20Fullscreen%20100vw-00f0ff.svg" alt="Display" />
+        <img src="https://img.shields.io/badge/Audio-Synthesizer%20SFX%20%26%20Music-ff0055.svg" alt="Audio" />
         <img src="https://img.shields.io/badge/Engine-60%20FPS%20Locked-yellow.svg" alt="FPS" />
       </p>
-      <p><em>Swing through city skylines, shoot web blasts, defeat rooftop thugs & flying drones, collect powerups, unleash Spider-Rage, and obliterate the Venom Boss in a dynamic retro arcade world with touch gestures & audio!</em></p>
+      <p><em>Swing through city skylines, shoot web blasts, defeat rooftop thugs, face 5 legendary Spider-Man villains, activate Spider-Rage, and achieve ultimate victory in a 100vw borderless retro arcade experience!</em></p>
     </td>
     <td width="35%" align="center" valign="middle">
       <img src="images/spidee-hero-portrait.png" width="170" alt="Spidee Pixel Art Portrait" />
@@ -24,71 +24,67 @@
 
 ## 🌐 Play Live Demo
 
-👉 **[https://spideee.netlify.app](https://spideee.netlify.app)** 👈
+👉 **[https://spidee.vercel.app](https://spidee.vercel.app)** 👈
 
 ---
 
 ## 🌟 Highlights & Key Features
 
-### 📱 1. **Mobile Responsive & Touch Gestures**
-- **Landscape Orientation Prompt**: Automatic landscape prompt on Android/iOS mobile screens for widescreen gaming.
-- **Floating Movement Controls**: `◀` (Left) & `▶` (Right) buttons + `🕸️ SHOOT` action button.
-- **On-Screen Canvas Touch Gestures**:
-  - 👆 **1x Tap**: Single Jump
-  - ✌️ **2x Tap**: Double Jump
-  - ⏱️ **Long Press (>220ms)**: Web Swing Pendulum
-  - ⚡ **3x Tap**: Spider-Rage Super Mode
+### 🖥️ 1. **True Borderless Fullscreen & Integrated HUD**
+- **100vw × 100vh Fullscreen**: Edge-to-edge canvas presentation without box borders or clutter.
+- **Top-Right ⚙️ Settings Button**: Single touch-friendly menu button opening instant **Settings & Pause** overlay (Resume, Restart, Sound Effects & Music toggles).
+- **Integrated Canvas HUD**: Clean display of `SPIDEE` logo, real-time `SCORE`, and `BEST RECORD`.
 
-### 🔊 2. **Immersive Audio & Sound Effects Engine**
-- **Web & Bullet SFX**: Web shooting, knife throws, laser shots, and symbiote blasts.
-- **Impact & Damage Hits**: Punch thuds when hitting enemies or taking damage.
-- **Collectibles & Power-Ups**: Retro coin chimes, shield hums, and HP heal melodies.
-- **Spider-Man Music Loop**: Retro theme music tracks with volume & mute controls.
+### 🦹 2. **5-Stage Main Villain Progression**
+Face 5 legendary Spider-Man villains at score milestones:
+- 🎃 **Green Goblin** (250 PTS) -> Pumpkin Bomb attacks (`+100 PTS` Defeat Bonus)
+- 🐙 **Doctor Octopus** (600 PTS) -> Emerald Tentacle Energy (`+200 PTS` Defeat Bonus)
+- ⌛ **Sandman** (1100 PTS) -> Golden Sand Blasts (`+300 PTS` Defeat Bonus)
+- 🔮 **Mysterio** (1750 PTS) -> Cyan Illusion Smoke Blasts (`+400 PTS` Defeat Bonus)
+- 🕷️🖤 **Venom Ultimate Boss** (2750 PTS) -> Pixel Art Symbiote Boss (`+500 PTS` Defeat Bonus)
 
-### 🔥 3. **Spider-Rage Super Mode**
-- Fill up the **Rage Gauge** (+15% per kill, +8% per coin).
-- Press **`SHIFT`** (or 3x tap on mobile) to activate 8 seconds of **Spider-Rage**:
-  - Screen shake & glowing crimson neon aura.
-  - **Triple Spread-Shot Laser Webs** with **Infinite Web Ammo**!
+### 🏆 3. **Game Victory & Winner Fanfare**
+- Defeating **Venom Ultimate Boss** completes the game with a grand victory screen!
+- **`🏆 VICTORY! YOU SAVED THE CITY! 🏆`** winner landing page with custom multi-note victory fanfare audio.
 
-### 🦹 4. **Venom Boss Fight**
-- Spawns dynamically at score milestones with a **`⚠️ WARNING! VENOM APPROACHES!`** alarm.
-- Features symbiote attacks and a boss health bar.
-- Defeating Venom triggers a **slow-motion camera finish**, +100 bonus points, and full HP/Ammo refill!
+### 🪙 4. **Balanced Arcade Points System**
+- **Coins (★)** = `+10 PTS`
+- **Thugs (1-Hit Kill)** = `+20 PTS`
+- **Main Villains** = `+100` to `+500 PTS`
 
-### 🌧️ 5. **Dynamic Weather & Day/Night Transitions**
-- Real-time environmental cycling:
-  - 🌇 **Sunset City** (Golden orange & magenta sky)
-  - 🌃 **Cyberpunk Night** (Deep navy sky with twinkling stars)
-  - ⚡ **Thunderstorm** (Falling rain particles & lightning flashes!)
+### 🔥 5. **Spider-Rage Super Mode**
+- Fill up the **Rage Meter** (+15% per kill, +8% per coin).
+- Press **`SHIFT`** to activate 8 seconds of **Spider-Rage**:
+  - Crimson glowing aura & screen shake.
+  - **Triple Spread-Shot Laser Webs** with infinite web ammo!
 
-### 🕸️ 6. **Web Swing Pendulum Physics**
-- Hold **`W`** in mid-air (or long press screen) to attach web tether rope.
-- Uses real gravitational pendulum physics (`angle`, `angularVelocity`).
+### 🔊 6. **Synthesizer Web Audio & Music Engine**
+- Synthesized web shoot sounds, knife throws, boss blasts, jump sfx, coin chimes, and victory fanfare.
+- Continuous retro background music loop with instant mute/unmute toggles.
 
-### 🏆 7. **High Score Persistence**
-- Automatically saves and loads your all-time **BEST** record using `localStorage`.
+### ⚡ 7. **Secret Developer God Mode**
+- Built-in hotkey for developer testing with infinite health, infinite webs, and void fall protection.
 
 ---
 
 ## 🎮 Controls Legend
 
-| Desktop Key | Mobile Gesture / Button | Action |
-| :--- | :--- | :--- |
-| **`Spacebar`** | 🕸️ **SHOOT Button** | Shoot Web / Attack |
-| **`←` / `→`** | **`◀` / `▶` Floating Buttons** | Move Left / Right |
-| **`↑`** | 👆 **1x Tap Screen** | Single Jump |
-| **`↑` + `↑`** | ✌️ **2x Tap Screen** | **Double Jump** |
-| **`W` (Hold)** | ⏱️ **Long Press Screen** | **Web Swing Pendulum** |
-| **`Shift`** | ⚡ **3x Tap Screen** | **Activate Spider-Rage Mode** |
-| **`Esc`** | ⏸️ **Pause Button** | Pause Game / Menu |
-| **`Enter`** | 🔄 **Restart Button** | Quick Restart on Game Over |
+| Desktop Key | Action |
+| :--- | :--- |
+| **`Spacebar`** | 🕸️ Shoot Web / Attack |
+| **`←` / `→`** | Move Left / Right |
+| **`↑`** | Single Jump |
+| **`↑` + `↑`** | **Double Jump** |
+| **`W` (Hold)** | ⏱️ **Web Swing Pendulum** |
+| **`Shift`** | ⚡ **Activate Spider-Rage Mode** |
+| **`Esc` / ⚙️ Button** | ⚙️ **Open Settings & Pause Menu** |
+| **`Enter`** | 🔄 **Quick Restart Game** |
 
 ---
 
 ## 🚀 Quick Start (Play Locally)
 
-No setup or build dependencies required! Simply clone and open `index.html`:
+No build tools required! Simply clone and open `index.html`:
 
 ```bash
 # 1. Clone repository
@@ -110,6 +106,6 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 <div align="center">
 
-Made with ❤️ & 🕸️ by **Jay2849**
+Made with ❤️ & 🕸️ by **Jay2849** • **[https://spidee.vercel.app](https://spidee.vercel.app)**
 
 </div>
