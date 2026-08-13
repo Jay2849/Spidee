@@ -253,8 +253,8 @@ SpidermanGame.prototype.load = function() {
 				'<button class="touch-btn touch-btn-rage" id="spideeBtnRage" aria-label="Rage Mode">🔥 RAGE</button>' +
 			'</div>' +
 			'<div class="touch-overlay-top">' +
-				'<button class="touch-btn touch-btn-utility" id="spideeBtnPause" aria-label="Pause">⏸️</button>' +
-				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄</button>' +
+				'<button class="touch-btn touch-btn-utility" id="spideeBtnPause" aria-label="Pause">⏸️ PAUSE</button>' +
+				'<button class="touch-btn touch-btn-utility" id="spideeBtnRestart" aria-label="Restart">🔄 RESTART</button>' +
 			'</div>' +
 			'<div class="touch-overlay-right">' +
 				'<button class="touch-btn touch-btn-shoot" id="spideeBtnShoot" aria-label="Shoot Web">🕸️<br>SHOOT</button>' +
@@ -288,7 +288,7 @@ SpidermanGame.prototype.load = function() {
 				btn.classList.add("active");
 				if (navigator.vibrate) try { navigator.vibrate(20); } catch(err){}
 
-				if (keyCode === KEY.ENTER && self.gameIsOver) {
+				if (keyCode === KEY.ENTER) {
 					self.restart();
 					return;
 				}
@@ -411,10 +411,8 @@ SpidermanGame.prototype.load = function() {
 		var keyCode = e.keyCode || e.which;
 
 		if (keyCode == 13 || keyCode == KEY.ENTER) {
-			if (self.gameIsOver) {
-				self.restart();
-				return;
-			}
+			self.restart();
+			return;
 		}
 
 		if (keyCode == KEY.SHIFT) {

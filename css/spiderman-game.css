@@ -260,12 +260,14 @@
 }
 
 .touch-btn-utility {
-	width: 40px;
-	height: 40px;
-	font-size: 15px;
-	background: rgba(15, 23, 42, 0.45);
-	border-radius: 50%;
-	border-color: rgba(255, 255, 255, 0.2);
+	height: 38px;
+	padding: 0 14px;
+	font-size: 12px;
+	background: rgba(15, 23, 42, 0.75);
+	border-radius: 20px;
+	border-color: rgba(255, 255, 255, 0.35);
+	letter-spacing: 0.5px;
+	box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
 }
 
 .touch-btn:active,

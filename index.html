@@ -157,7 +157,7 @@
 		</div>
 	</div>
 </body>
-<script type="text/javascript" src="spiderman-game.js?v=1770956000"></script>
+<script type="text/javascript" src="spiderman-game.js?v=1770957000"></script>
 <script type="text/javascript">
 function initSpideeGame() {
 	var game = new SpidermanGame({
@@ -165,6 +165,29 @@ function initSpideeGame() {
 	});
 	game.load();
 	window.spideeGame = game;
+
+	// Make UI Keyboard Hint badges clickable for instant restart/pause/shoot controls
+	var keys = document.querySelectorAll(".keyboard .key, .keyboard .action");
+	for (var i = 0; i < keys.length; i++) {
+		(function(el) {
+			el.style.cursor = "pointer";
+			el.addEventListener("click", function() {
+				var txt = (el.innerText || el.textContent || "").toUpperCase();
+				if (txt.indexOf("ENTER") > -1 || txt.indexOf("RESTART") > -1) {
+					game.restart();
+				} else if (txt.indexOf("ESC") > -1 || txt.indexOf("PAUSE") > -1) {
+					if (game.paused) game.unpause(); else game.pause();
+				} else if (txt.indexOf("SPACE") > -1 || txt.indexOf("SHOOT") > -1) {
+					game.spiderman.keydown(32);
+					setTimeout(function() { game.spiderman.keyup(32); }, 120);
+				} else if (txt.indexOf("SHIFT") > -1 || txt.indexOf("RAGE") > -1) {
+					if (game.spiderman.rageMeter >= 100 && game.spiderman.rageTimer <= 0) {
+						game.spiderman.activateRage();
+					}
+				}
+			});
+		})(keys[i]);
+	}
 }
 
 if (document.readyState === "complete" || document.readyState === "interactive") {
