@@ -88,11 +88,11 @@ var DIRECTION = {
 
 function getDefaultBossMilestones() {
 	return [
-		{ score: 500,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
-		{ score: 1200, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-		{ score: 2200, type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
-		{ score: 3500, type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-		{ score: 5000, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+		{ score: 100,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
+		{ score: 250,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+		{ score: 500,  type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
+		{ score: 900,  type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+		{ score: 1400, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
 	];
 }
 
@@ -1287,10 +1287,10 @@ PowerUp.prototype.collect = function(spiderman) {
 		this.game.addFloatingText(this.x, this.y - 20, "🍕 HP HEAL!", "#ff0055", 18);
 		this.game.playSound("COLLECT_PIZZA");
 	} else if (this.type === "COIN") {
-		this.game.score += 50;
+		this.game.score += 10;
 		spiderman.rageMeter = Math.min(100, spiderman.rageMeter + 8);
 		this.game.addParticles(this.x, this.y, "#ffd700", 12, 4);
-		this.game.addFloatingText(this.x, this.y - 20, "+50 PTS", "#ffd700", 16);
+		this.game.addFloatingText(this.x, this.y - 20, "+10 PTS", "#ffd700", 16);
 		this.game.playSound("COLLECT_COIN");
 	}
 };
@@ -1895,8 +1895,8 @@ Enemy.prototype.update = function() {
 };
 
 Enemy.prototype.remove = function() {
-	this.game.score += 100;
-	this.game.addFloatingText(this.x, this.y - 20, "+100 PTS", "#ffd700", 18);
+	this.game.score += 20;
+	this.game.addFloatingText(this.x, this.y - 20, "+20 PTS", "#ffd700", 18);
 	this.game.spiderman.web += 3;
 	this.game.spiderman.rageMeter = Math.min(100, this.game.spiderman.rageMeter + 15);
 	this.game.registerKill(this.x, this.y);
@@ -2099,23 +2099,30 @@ BossEnemy.prototype.update = function() {
 };
 
 BossEnemy.prototype.remove = function() {
-	this.game.score += 500;
+	var bonusPoints = 100;
+	if (this.type === "GOBLIN") bonusPoints = 100;
+	else if (this.type === "DOC_OCK") bonusPoints = 200;
+	else if (this.type === "SANDMAN") bonusPoints = 300;
+	else if (this.type === "MYSTERIO") bonusPoints = 400;
+	else if (this.type === "VENOM_ORIGINAL") bonusPoints = 500;
+
+	this.game.score += bonusPoints;
 	this.game.slowmoTimer = 90;
 	this.game.spiderman.health = Math.min(this.game.spiderman.maxHealth, this.game.spiderman.health + 2);
 	this.game.spiderman.web = Math.max(this.game.spiderman.web, 40);
 	this.game.addParticles(this.x, this.y, this.color, 30, 7);
-	this.game.addFloatingText(this.x, this.y - 40, "☠️ " + this.displayName + " DEFEATED! +500 PTS", "#ffd700", 24);
+	this.game.addFloatingText(this.x, this.y - 40, "☠️ " + this.displayName + " DEFEATED! +" + bonusPoints + " PTS", "#ffd700", 24);
 	this.game.bossActive = false;
 
 	// Loop Boss Rush sequence continuously with scaling score targets
 	if (this.game.bossMilestones.length === 0) {
 		var current = this.game.score;
 		this.game.bossMilestones = [
-			{ score: current + 600,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 6, color: "#f97316" },
-			{ score: current + 1400, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-			{ score: current + 2500, type: "SANDMAN",         name: "SANDMAN",        health: 7, color: "#eab308" },
-			{ score: current + 3800, type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-			{ score: current + 5500, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+			{ score: current + 150, type: "GOBLIN",          name: "GREEN GOBLIN",   health: 6, color: "#f97316" },
+			{ score: current + 350, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+			{ score: current + 650, type: "SANDMAN",         name: "SANDMAN",        health: 7, color: "#eab308" },
+			{ score: current + 1050, type: "MYSTERIO",       name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+			{ score: current + 1550, type: "VENOM_ORIGINAL", name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
 		];
 	}
 
