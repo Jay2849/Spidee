@@ -88,11 +88,11 @@ var DIRECTION = {
 
 function getDefaultBossMilestones() {
 	return [
-		{ score: 100,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
-		{ score: 250,  type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
-		{ score: 500,  type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
-		{ score: 900,  type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
-		{ score: 1400, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
+		{ score: 500,  type: "GOBLIN",          name: "GREEN GOBLIN",   health: 5, color: "#f97316" },
+		{ score: 1200, type: "DOC_OCK",         name: "DOCTOR OCTOPUS", health: 6, color: "#10b981" },
+		{ score: 2200, type: "SANDMAN",         name: "SANDMAN",        health: 6, color: "#eab308" },
+		{ score: 3500, type: "MYSTERIO",        name: "MYSTERIO",       health: 7, color: "#06b6d4" },
+		{ score: 5500, type: "VENOM_ORIGINAL",  name: "VENOM ULTIMATE", health: 8, color: "#a855f7" }
 	];
 }
 
