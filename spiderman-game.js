@@ -991,18 +991,24 @@ SpidermanGame.prototype.drawHUD = function() {
 	var ctx = this.ctx;
 	var spiderman = this.spiderman;
 
-	// Score
+	// Title Logo on Top-Left
+	ctx.fillStyle = "#e62429";
+	ctx.font = "bold 20px SpidermanGamePixelFont, Monospace, Helvetica";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
+	ctx.fillText("SPIDEE", 20, 10);
+
+	// Score in Center
 	ctx.fillStyle = "#ffffff";
 	ctx.font = "22px SpidermanGamePixelFont, Monospace, Helvetica";
 	ctx.textAlign = "center";
-	ctx.textBaseline = "top";
-	ctx.fillText("SCORE: " + this.score, this.canvas.width / 2, 8);
+	ctx.fillText("SCORE: " + this.score, this.canvas.width / 2 - 40, 8);
 
-	// High Score
+	// High Score near Center-Right
 	ctx.fillStyle = "#ffd700";
 	ctx.font = "16px SpidermanGamePixelFont, Monospace, Helvetica";
-	ctx.textAlign = "right";
-	ctx.fillText("BEST: " + this.highScore, this.canvas.width - 20, 8);
+	ctx.textAlign = "left";
+	ctx.fillText("BEST: " + this.highScore, this.canvas.width / 2 + 100, 12);
 
 	// Rage Bar HUD
 	var rX = this.canvas.width / 2 - 80;

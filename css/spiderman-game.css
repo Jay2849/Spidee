@@ -369,31 +369,45 @@
 	}
 }
 
-/* Full Viewport Canvas & Settings Button Styles */
+/* True Fullscreen Viewport Canvas Styles (No Box Borders) */
+html, body {
+	width: 100vw;
+	height: 100vh;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background: #050812;
+}
+
 .canvas-wrapper {
-	width: 98vw;
-	max-width: 1400px;
-	margin: 5px auto;
+	width: 100vw;
+	height: 100vh;
+	margin: 0;
+	padding: 0;
 	display: flex;
-	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 }
 
 .canvas-container {
-	width: 100%;
+	width: 100vw;
+	height: 100vh;
 	position: relative;
-	border-radius: 16px;
-	overflow: hidden;
-	box-shadow: 0 12px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(230, 36, 41, 0.35);
-	border: 2px solid rgba(255, 255, 255, 0.15);
+	border-radius: 0;
+	border: none;
+	box-shadow: none;
 	background: #090d16;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #canvas {
-	width: 100%;
-	height: auto;
+	width: 100vw;
+	height: 100vh;
+	object-fit: fill;
 	display: block;
-	aspect-ratio: 1111 / 500;
 }
 
 .spidee-top-settings-wrapper {
